@@ -5,9 +5,15 @@ class AppConstants {
   static const String appName = 'RehabFlow';
   static const String appTagline = 'Rehabilitation Exercise Management';
 
-  /// Mock/public REST endpoint for exercises (fallback: bundled asset).
+  /// Base design canvas for [flutter_screenutil] (logical px).
+  static const double designWidth = 390;
+  static const double designHeight = 844;
+
+  /// Public REST endpoint for exercises (fallback: bundled asset + local cache).
   static const String exercisesApiUrl =
-      'https://raw.githubusercontent.com/aaryandev/rehab-flow-mock/main/exercises.json';
+      'https://raw.githubusercontent.com/aaryanraj25/rehab_flow/main/assets/data/exercises.json';
+
+  static const String exercisesAssetPath = 'assets/data/exercises.json';
 
   static const String storageAuthKey = 'auth_session';
   static const String storageExercisesKey = 'cached_exercises';

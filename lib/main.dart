@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/constants/app_constants.dart';
+import 'core/routes/app_routes.dart';
 import 'core/storage/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
+import 'features/exercises/data/repositories/exercise_repository.dart';
 import 'network/api_client.dart';
+import 'utils/responsive.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ScreenUtil.ensureScreenSize();
   await _registerCoreServices();
   runApp(const RehabFlowApp());
 }
@@ -17,10 +22,21 @@ Future<void> main() async {
 Future<void> _registerCoreServices() async {
   final prefs = await SharedPreferences.getInstance();
   final storage = LocalStorageService(prefs);
+  final networkInfo = NetworkInfo();
+  final apiClient = ApiClient();
+
   Get.put(storage, permanent: true);
-  Get.put(NetworkInfo(), permanent: true);
-  Get.put(ApiClient(), permanent: true);
+  Get.put(networkInfo, permanent: true);
+  Get.put(apiClient, permanent: true);
   Get.put(AuthRepository(storage), permanent: true);
+  Get.put(
+    ExerciseRepository(
+      storage: storage,
+      apiClient: apiClient,
+      networkInfo: networkInfo,
+    ),
+    permanent: true,
+  );
 }
 
 class RehabFlowApp extends StatelessWidget {
@@ -28,11 +44,19 @@ class RehabFlowApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: AppConstants.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: const ScaffoldHome(),
+    return ScreenUtilInit(
+      designSize: Responsive.designSize,
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return GetMaterialApp(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          initialRoute: AppRoutes.splash,
+          getPages: AppRoutes.pages,
+        );
+      },
     );
   }
 }

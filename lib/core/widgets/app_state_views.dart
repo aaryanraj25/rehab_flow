@@ -13,7 +13,7 @@ class AppLoadingView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(color: AppColors.primary),
+          const CircularProgressIndicator(color: AppColors.coralDeep),
           const SizedBox(height: 16),
           Text(
             message,
@@ -45,7 +45,7 @@ class AppEmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: AppColors.border),
+            Icon(icon, size: 64, color: AppColors.coralSoft),
             const SizedBox(height: 16),
             Text(
               title,
@@ -140,19 +140,23 @@ class OfflineBanner extends StatelessWidget {
     if (!visible) return const SizedBox.shrink();
 
     return Material(
-      color: AppColors.warning,
+      color: AppColors.ink,
       child: const SafeArea(
         bottom: false,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              Icon(Icons.cloud_off, color: Colors.white, size: 18),
+              Icon(Icons.cloud_off, color: AppColors.coralGlow, size: 18),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'You are offline — showing cached data',
-                  style: TextStyle(color: Colors.white, fontSize: 13),
+                  style: TextStyle(
+                    color: AppColors.textOnCoral,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
