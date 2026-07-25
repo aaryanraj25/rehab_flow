@@ -13,6 +13,7 @@ class ExerciseCard extends StatelessWidget {
     required this.exercise,
     this.onTap,
     this.dense = false,
+    this.enableHero = true,
   });
 
   final ExerciseModel exercise;
@@ -21,57 +22,83 @@ class ExerciseCard extends StatelessWidget {
   /// Compact horizontal layout for phone lists.
   final bool dense;
 
+  /// Disable when multiple cards for the same id could share a route
+  /// (e.g. related list under an already-heroed detail media).
+  final bool enableHero;
+
   @override
   Widget build(BuildContext context) {
     if (dense || Responsive.isPhone(context)) {
-      return _DenseCard(exercise: exercise, onTap: onTap);
+      return _DenseCard(
+        exercise: exercise,
+        onTap: onTap,
+        enableHero: enableHero,
+      );
     }
-    return _GridCard(exercise: exercise, onTap: onTap);
+    return _GridCard(
+      exercise: exercise,
+      onTap: onTap,
+      enableHero: enableHero,
+    );
   }
 }
 
 class _DenseCard extends StatelessWidget {
-  const _DenseCard({required this.exercise, this.onTap});
+  const _DenseCard({
+    required this.exercise,
+    this.onTap,
+    this.enableHero = true,
+  });
 
   final ExerciseModel exercise;
   final VoidCallback? onTap;
+  final bool enableHero;
 
   @override
   Widget build(BuildContext context) {
     final thumb = 88.w;
 
+    Widget image = ClipRRect(
+      borderRadius: BorderRadius.circular(14.r),
+      child: SizedBox(
+        width: thumb,
+        height: thumb,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ExerciseCachedImage(
+              url: exercise.thumbnailUrl ?? exercise.imageUrl,
+              fallbackCategory: exercise.category,
+              showLoader: false,
+            ),
+            Positioned(
+              left: 6.w,
+              top: 6.h,
+              child: _DifficultyDot(difficulty: exercise.difficulty),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (enableHero) {
+      image = Hero(tag: 'exercise-image-${exercise.id}', child: image);
+    }
+
     return Material(
       color: AppColors.surfaceElevated,
+      elevation: 1.5,
+      shadowColor: AppColors.ink.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(18.r),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        splashColor: AppColors.coral.withValues(alpha: 0.12),
+        highlightColor: AppColors.coral.withValues(alpha: 0.06),
         child: Padding(
           padding: EdgeInsets.all(10.w),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14.r),
-                child: SizedBox(
-                  width: thumb,
-                  height: thumb,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ExerciseCachedImage(
-                        url: exercise.thumbnailUrl ?? exercise.imageUrl,
-                        fallbackCategory: exercise.category,
-                        showLoader: false,
-                      ),
-                      Positioned(
-                        left: 6.w,
-                        top: 6.h,
-                        child: _DifficultyDot(difficulty: exercise.difficulty),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              image,
               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
@@ -128,52 +155,63 @@ class _DenseCard extends StatelessWidget {
 }
 
 class _GridCard extends StatelessWidget {
-  const _GridCard({required this.exercise, this.onTap});
+  const _GridCard({
+    required this.exercise,
+    this.onTap,
+    this.enableHero = true,
+  });
 
   final ExerciseModel exercise;
   final VoidCallback? onTap;
+  final bool enableHero;
 
   @override
   Widget build(BuildContext context) {
+    Widget media = Stack(
+      fit: StackFit.expand,
+      children: [
+        ExerciseCachedImage(
+          url: exercise.thumbnailUrl ?? exercise.imageUrl,
+          fallbackCategory: exercise.category,
+          showLoader: false,
+        ),
+        Positioned(
+          left: 10.w,
+          top: 10.h,
+          child: _Chip(
+            label: exercise.difficulty,
+            color: DifficultyColors.forLevel(exercise.difficulty),
+          ),
+        ),
+        Positioned(
+          right: 4.w,
+          top: 4.h,
+          child: FavoriteButton(
+            exerciseId: exercise.id,
+            color: Colors.white,
+            size: 22.sp,
+          ),
+        ),
+      ],
+    );
+    if (enableHero) {
+      media = Hero(tag: 'exercise-image-${exercise.id}', child: media);
+    }
+
     return Material(
       color: AppColors.surfaceElevated,
+      elevation: 2,
+      shadowColor: AppColors.ink.withValues(alpha: 0.14),
       borderRadius: BorderRadius.circular(20.r),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        splashColor: AppColors.coral.withValues(alpha: 0.12),
+        highlightColor: AppColors.coral.withValues(alpha: 0.06),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              flex: 5,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ExerciseCachedImage(
-                    url: exercise.thumbnailUrl ?? exercise.imageUrl,
-                    fallbackCategory: exercise.category,
-                    showLoader: false,
-                  ),
-                  Positioned(
-                    left: 10.w,
-                    top: 10.h,
-                    child: _Chip(
-                      label: exercise.difficulty,
-                      color: DifficultyColors.forLevel(exercise.difficulty),
-                    ),
-                  ),
-                  Positioned(
-                    right: 4.w,
-                    top: 4.h,
-                    child: FavoriteButton(
-                      exerciseId: exercise.id,
-                      color: Colors.white,
-                      size: 22.sp,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            Expanded(flex: 5, child: media),
             Expanded(
               flex: 4,
               child: Padding(

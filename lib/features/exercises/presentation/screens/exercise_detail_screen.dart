@@ -177,6 +177,7 @@ class _DetailBody extends GetView<ExerciseDetailController> {
                           child: ExerciseCard(
                             exercise: related,
                             dense: true,
+                            enableHero: false,
                             onTap: () => controller.openRelated(related),
                           ),
                         ),

@@ -16,6 +16,7 @@ class ExerciseSearchBar extends GetView<ExerciseController> {
         controller: controller.searchController,
         onChanged: controller.onSearchChanged,
         textInputAction: TextInputAction.search,
+        onSubmitted: (_) => FocusScope.of(context).unfocus(),
         style: TextStyle(
           fontSize: 14.sp,
           fontWeight: FontWeight.w600,
@@ -39,7 +40,10 @@ class ExerciseSearchBar extends GetView<ExerciseController> {
             }
             return IconButton(
               tooltip: 'Clear search',
-              onPressed: controller.clearSearch,
+              onPressed: () {
+                controller.clearSearch();
+                FocusScope.of(context).unfocus();
+              },
               icon: Icon(
                 Icons.close_rounded,
                 size: 20.sp,

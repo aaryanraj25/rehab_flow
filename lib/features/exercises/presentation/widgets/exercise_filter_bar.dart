@@ -100,20 +100,26 @@ class ExerciseActiveFilters extends GetView<ExerciseController> {
             onDeleted: () => controller.selectMuscle(null),
           ),
         _ActiveChip(
-          label: 'Clear',
+          label: 'Clear all',
           onDeleted: controller.clearFacetFilters,
           isAction: true,
         ),
       ];
 
-      return SizedBox(
-        height: 34.h,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: chips.length,
-          separatorBuilder: (context, index) => SizedBox(width: 8.w),
-          itemBuilder: (context, index) => chips[index],
-        ),
+      return Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 34.h,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: chips.length,
+                separatorBuilder: (context, index) => SizedBox(width: 8.w),
+                itemBuilder: (context, index) => chips[index],
+              ),
+            ),
+          ),
+        ],
       );
     });
   }

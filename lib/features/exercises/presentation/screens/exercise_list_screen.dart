@@ -25,157 +25,197 @@ class ExerciseListScreen extends GetView<ExerciseController> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          _Header(auth: auth),
-          Obx(() {
-            if (controller.isOffline.value) {
-              return const OfflineBanner(visible: true);
-            }
-            if (controller.refreshFailed.value && controller.fromCache.value) {
-              return const OfflineBanner(
-                visible: true,
-                online: false,
-                message: 'Couldn’t refresh — showing saved data',
-              );
-            }
-            if (controller.showOnlineBanner.value) {
-              return const OfflineBanner(visible: true, online: true);
-            }
-            return const SizedBox.shrink();
-          }),
-          Padding(
-            padding: EdgeInsets.fromLTRB(pad, 12.h, pad, 0),
-            child: Row(
-              children: [
-                const Expanded(child: ExerciseSearchBar()),
-                SizedBox(width: 10.w),
-                const ExerciseFilterButton(),
-              ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: Column(
+          children: [
+            _Header(auth: auth),
+            Obx(() {
+              if (controller.isOffline.value) {
+                return const OfflineBanner(visible: true);
+              }
+              if (controller.refreshFailed.value && controller.fromCache.value) {
+                return const OfflineBanner(
+                  visible: true,
+                  online: false,
+                  message: 'Couldn’t refresh — showing saved data',
+                );
+              }
+              if (controller.showOnlineBanner.value) {
+                return const OfflineBanner(visible: true, online: true);
+              }
+              return const SizedBox.shrink();
+            }),
+            Padding(
+              padding: EdgeInsets.fromLTRB(pad, 12.h, pad, 0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: Responsive.maxContentWidth(context),
+                ),
+                child: Row(
+                  children: [
+                    const Expanded(child: ExerciseSearchBar()),
+                    SizedBox(width: 10.w),
+                    const ExerciseFilterButton(),
+                  ],
+                ),
+              ),
             ),
-          ),
-          Obx(() {
-            if (!controller.hasFacetFilters) {
-              return SizedBox(height: 10.h);
-            }
-            return Padding(
-              padding: EdgeInsets.fromLTRB(pad, 10.h, pad, 4.h),
-              child: const ExerciseActiveFilters(),
-            );
-          }),
-          Expanded(
-            child: Obx(() {
-              switch (controller.status.value) {
-                case ExerciseListStatus.initial:
-                case ExerciseListStatus.loading:
-                  return const AppLoadingView(message: 'Loading exercises...');
-                case ExerciseListStatus.empty:
-                  return const AppEmptyView(
-                    title: 'No exercises found',
-                    subtitle: 'Pull to refresh or try again later.',
-                    icon: Icons.fitness_center_outlined,
-                  );
-                case ExerciseListStatus.error:
-                  return AppErrorView(
-                    message: controller.errorMessage.value ??
-                        'Could not load exercises.',
-                    isOffline: controller.isOffline.value,
-                    onRetry: controller.retry,
-                  );
-                case ExerciseListStatus.success:
-                  final filtered = controller.filteredExercises;
-                  return RefreshIndicator(
-                    color: AppColors.coralDeep,
-                    onRefresh: () =>
-                        controller.loadExercises(forceRefresh: true),
-                    child: CustomScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(pad, 6.h, pad, 10.h),
-                            child: Text(
-                              filtered.isEmpty
-                                  ? 'No matches'
-                                  : '${filtered.length} exercise${filtered.length == 1 ? '' : 's'}',
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textSecondary,
-                              ),
+            Obx(() {
+              if (!controller.hasFacetFilters) {
+                return SizedBox(height: 10.h);
+              }
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: Responsive.maxContentWidth(context),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(pad, 10.h, pad, 4.h),
+                    child: const ExerciseActiveFilters(),
+                  ),
+                ),
+              );
+            }),
+            Expanded(
+              child: Obx(() {
+                switch (controller.status.value) {
+                  case ExerciseListStatus.initial:
+                  case ExerciseListStatus.loading:
+                    return const AppLoadingView(message: 'Loading exercises...');
+                  case ExerciseListStatus.empty:
+                    return const AppEmptyView(
+                      title: 'No exercises found',
+                      subtitle: 'Pull to refresh or try again later.',
+                      icon: Icons.fitness_center_outlined,
+                    );
+                  case ExerciseListStatus.error:
+                    return AppErrorView(
+                      message: controller.errorMessage.value ??
+                          'Could not load exercises.',
+                      isOffline: controller.isOffline.value,
+                      onRetry: controller.retry,
+                    );
+                  case ExerciseListStatus.success:
+                    final filtered = controller.filteredExercises;
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification is ScrollStartNotification) {
+                          FocusScope.of(context).unfocus();
+                        }
+                        return false;
+                      },
+                      child: RefreshIndicator(
+                        color: AppColors.coralDeep,
+                        displacement: 40,
+                        onRefresh: () =>
+                            controller.loadExercises(forceRefresh: true),
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: Responsive.maxContentWidth(context),
+                            ),
+                            child: CustomScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              slivers: [
+                                SliverToBoxAdapter(
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(pad, 6.h, pad, 10.h),
+                                    child: Text(
+                                      filtered.isEmpty
+                                          ? 'No matches'
+                                          : '${filtered.length} exercise${filtered.length == 1 ? '' : 's'}',
+                                      style: TextStyle(
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (filtered.isEmpty)
+                                  SliverFillRemaining(
+                                    hasScrollBody: false,
+                                    child: AppEmptyView(
+                                      title: 'No matches',
+                                      subtitle: controller.hasActiveFilters
+                                          ? 'Try adjusting search or filters.'
+                                          : 'Nothing to show right now.',
+                                      icon: Icons.search_off_rounded,
+                                      actionLabel: controller.hasActiveFilters
+                                          ? 'Clear filters'
+                                          : null,
+                                      onAction: controller.hasActiveFilters
+                                          ? controller.clearFilters
+                                          : null,
+                                    ),
+                                  )
+                                else if (isTablet)
+                                  SliverPadding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(pad, 0, pad, 24.h),
+                                    sliver: SliverGrid(
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: columns.clamp(2, 4),
+                                        crossAxisSpacing: 12.w,
+                                        mainAxisSpacing: 12.h,
+                                        childAspectRatio: 0.82,
+                                      ),
+                                      delegate: SliverChildBuilderDelegate(
+                                        (context, index) {
+                                          final exercise = filtered[index];
+                                          return ExerciseCard(
+                                            exercise: exercise,
+                                            dense: false,
+                                            onTap: () => Get.toNamed(
+                                              AppRoutes.exerciseDetail,
+                                              arguments: exercise.id,
+                                            ),
+                                          );
+                                        },
+                                        childCount: filtered.length,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  SliverPadding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(pad, 0, pad, 24.h),
+                                    sliver: SliverList.separated(
+                                      itemCount: filtered.length,
+                                      separatorBuilder: (context, index) =>
+                                          SizedBox(height: 10.h),
+                                      itemBuilder: (context, index) {
+                                        final exercise = filtered[index];
+                                        return ExerciseCard(
+                                          exercise: exercise,
+                                          dense: true,
+                                          onTap: () => Get.toNamed(
+                                            AppRoutes.exerciseDetail,
+                                            arguments: exercise.id,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         ),
-                        if (filtered.isEmpty)
-                          SliverFillRemaining(
-                            hasScrollBody: false,
-                            child: AppEmptyView(
-                              title: 'No matches',
-                              subtitle: controller.hasActiveFilters
-                                  ? 'Try adjusting search or filters.'
-                                  : 'Nothing to show right now.',
-                              icon: Icons.search_off_rounded,
-                              actionLabel: controller.hasActiveFilters
-                                  ? 'Clear filters'
-                                  : null,
-                              onAction: controller.hasActiveFilters
-                                  ? controller.clearFilters
-                                  : null,
-                            ),
-                          )
-                        else if (isTablet)
-                          SliverPadding(
-                            padding: EdgeInsets.fromLTRB(pad, 0, pad, 24.h),
-                            sliver: SliverGrid(
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: columns.clamp(2, 4),
-                                crossAxisSpacing: 12.w,
-                                mainAxisSpacing: 12.h,
-                                childAspectRatio: 0.82,
-                              ),
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final exercise = filtered[index];
-                                  return ExerciseCard(
-                                    exercise: exercise,
-                                    dense: false,
-                                    onTap: () => Get.toNamed(
-                                      AppRoutes.exerciseDetail,
-                                      arguments: exercise.id,
-                                    ),
-                                  );
-                                },
-                                childCount: filtered.length,
-                              ),
-                            ),
-                          )
-                        else
-                          SliverPadding(
-                            padding: EdgeInsets.fromLTRB(pad, 0, pad, 24.h),
-                            sliver: SliverList.separated(
-                              itemCount: filtered.length,
-                              separatorBuilder: (context, index) => SizedBox(height: 10.h),
-                              itemBuilder: (context, index) {
-                                final exercise = filtered[index];
-                                return ExerciseCard(
-                                  exercise: exercise,
-                                  dense: true,
-                                  onTap: () => Get.toNamed(
-                                    AppRoutes.exerciseDetail,
-                                    arguments: exercise.id,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-              }
-            }),
-          ),
-        ],
+                      ),
+                    );
+                }
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }

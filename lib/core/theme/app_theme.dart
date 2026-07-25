@@ -122,10 +122,61 @@ class AppTheme {
         labelStyle: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
         side: const BorderSide(color: AppColors.border),
       ),
+      textTheme: TextTheme(
+        headlineLarge: TextStyle(
+          fontSize: 26.sp,
+          fontWeight: FontWeight.w900,
+          letterSpacing: -0.6,
+          color: AppColors.ink,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 20.sp,
+          fontWeight: FontWeight.w800,
+          color: AppColors.ink,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w700,
+          color: AppColors.ink,
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w500,
+          height: 1.55,
+          color: AppColors.ink,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+          height: 1.45,
+          color: AppColors.ink,
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+        labelLarge: TextStyle(
+          fontSize: 15.sp,
+          fontWeight: FontWeight.w700,
+          color: AppColors.ink,
+        ),
+      ),
       cardTheme: CardThemeData(
         color: AppColors.surfaceElevated,
-        elevation: 0,
+        elevation: 1.5,
+        shadowColor: AppColors.ink.withValues(alpha: 0.12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.ink,
+        contentTextStyle: TextStyle(
+          color: AppColors.textOnCoral,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w600,
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       ),
     );
   }
