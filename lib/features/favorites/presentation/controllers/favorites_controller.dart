@@ -38,6 +38,12 @@ class FavoritesController extends GetxController {
     await loadFavoriteExercises();
   }
 
+  Future<void> clearAll() async {
+    await _favoritesRepository.clear();
+    favoriteIds.clear();
+    favoriteExercises.clear();
+  }
+
   Future<void> loadFavoriteExercises() async {
     isLoading.value = true;
     try {

@@ -29,6 +29,4 @@ class LocalStorageService {
   Future<void> remove(String key) => _prefs.remove(key);
 
   bool containsKey(String key) => _prefs.containsKey(key);
-
-  Future<void> clear() => _prefs.clear();
 }

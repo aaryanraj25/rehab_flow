@@ -57,7 +57,10 @@ class Responsive {
   }
 
   static double maxContentWidth(BuildContext context) {
-    return isTablet(context) ? 1000.w : double.infinity;
+    if (!isTablet(context)) return double.infinity;
+    final width = sizeOf(context).width;
+    if (width >= wideBreakpoint) return 960;
+    return 720;
   }
 
   static double authFormMaxWidth(BuildContext context) {

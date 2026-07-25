@@ -38,6 +38,7 @@ class FavoritesRepository {
     return true;
   }
 
+  /// Clears all favourites (e.g. Favourites screen “Clear all”).
   Future<void> clear() async {
     await _storage.setStringList(AppConstants.storageFavoritesKey, []);
   }
