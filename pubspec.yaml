@@ -28,13 +28,23 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   network_image_mock: ^2.1.1
+  flutter_launcher_icons: ^0.14.3
 
 # path_provider_foundation 2.6 + objective_c 9.4 crashes on iOS
 # (DOBJC_initializeApi / missing native asset). Pin until Flutter ships the fix.
 dependency_overrides:
   objective_c: 9.3.0
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/branding/app_icon.png
+  adaptive_icon_background: "#E85A36"
+  adaptive_icon_foreground: assets/branding/app_icon.png
+  remove_alpha_ios: true
+
 flutter:
   uses-material-design: true
   assets:
     - assets/data/
+    - assets/branding/
