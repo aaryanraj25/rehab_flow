@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
+import '../../features/exercises/presentation/screens/exercise_detail_screen.dart';
 import '../../features/exercises/presentation/screens/exercise_list_screen.dart';
 import '../bindings/app_bindings.dart';
 
@@ -11,6 +12,7 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String exercises = '/exercises';
+  static const String exerciseDetail = '/exercises/detail';
 
   static final List<GetPage<dynamic>> pages = [
     GetPage(
@@ -26,7 +28,12 @@ class AppRoutes {
     GetPage(
       name: exercises,
       page: () => const ExerciseListScreen(),
-      binding: AuthBinding(),
+      binding: ExerciseBinding(),
+    ),
+    GetPage(
+      name: exerciseDetail,
+      page: () => const ExerciseDetailScreen(),
+      binding: ExerciseDetailBinding(),
     ),
   ];
 }

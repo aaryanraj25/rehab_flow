@@ -15,11 +15,17 @@ dependencies:
   shared_preferences: ^2.5.3
   connectivity_plus: ^6.1.4
   flutter_screenutil: ^5.9.3
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+# path_provider_foundation 2.6 + objective_c 9.4 crashes on iOS
+# (DOBJC_initializeApi / missing native asset). Pin until Flutter ships the fix.
+dependency_overrides:
+  objective_c: 9.3.0
 
 flutter:
   uses-material-design: true

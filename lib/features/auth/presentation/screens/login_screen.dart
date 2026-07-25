@@ -181,6 +181,7 @@ class _LoginCard extends GetView<AuthController> {
       ),
       child: Form(
         key: controller.formKey,
+        autovalidateMode: AutovalidateMode.onUnfocus,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

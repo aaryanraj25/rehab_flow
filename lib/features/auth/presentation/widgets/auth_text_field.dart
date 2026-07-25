@@ -51,6 +51,8 @@ class AuthTextField extends StatelessWidget {
           validator: validator,
           textInputAction: textInputAction,
           onFieldSubmitted: onFieldSubmitted,
+          // Quiet while focused; validate on blur, then live as the user edits.
+          autovalidateMode: AutovalidateMode.onUnfocus,
           style: TextStyle(
             color: AppColors.ink,
             fontWeight: FontWeight.w600,

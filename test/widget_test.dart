@@ -12,6 +12,7 @@ import 'package:rehab_flow/features/auth/presentation/controllers/auth_controlle
 import 'package:rehab_flow/features/auth/presentation/screens/login_screen.dart';
 import 'package:rehab_flow/features/exercises/data/models/exercise_model.dart';
 import 'package:rehab_flow/features/exercises/data/repositories/exercise_repository.dart';
+import 'package:rehab_flow/features/exercises/presentation/controllers/exercise_controller.dart';
 import 'package:rehab_flow/main.dart';
 import 'package:rehab_flow/network/api_client.dart';
 import 'package:rehab_flow/utils/responsive.dart';
@@ -144,5 +145,49 @@ void main() {
 
     final detail = await repo.getExerciseById(result.exercises.first.id);
     expect(detail?.id, result.exercises.first.id);
+  });
+
+  test('ExerciseController search and filters work together', () async {
+    final controller = ExerciseController(Get.find<ExerciseRepository>());
+    await controller.loadExercises();
+
+    expect(controller.allExercises, isNotEmpty);
+    final total = controller.filteredExercises.length;
+
+    controller.onSearchChanged('knee');
+    expect(
+      controller.filteredExercises.every(
+        (e) => e.name.toLowerCase().contains('knee'),
+      ),
+      isTrue,
+    );
+
+    controller.clearSearch();
+    controller.selectCategory('Strength');
+    controller.selectDifficulty('Beginner');
+    final filtered = controller.filteredExercises;
+    expect(filtered, isNotEmpty);
+    expect(
+      filtered.every(
+        (e) => e.category == 'Strength' && e.difficulty == 'Beginner',
+      ),
+      isTrue,
+    );
+    expect(filtered.length, lessThanOrEqualTo(total));
+
+    controller.selectMuscle(filtered.first.targetMuscle);
+    expect(
+      controller.filteredExercises.every(
+        (e) =>
+            e.category == 'Strength' &&
+            e.difficulty == 'Beginner' &&
+            e.targetMuscle == filtered.first.targetMuscle,
+      ),
+      isTrue,
+    );
+
+    controller.clearFilters();
+    expect(controller.filteredExercises.length, total);
+    controller.onClose();
   });
 }
