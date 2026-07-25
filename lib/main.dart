@@ -9,6 +9,8 @@ import 'core/storage/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/exercises/data/repositories/exercise_repository.dart';
+import 'features/favorites/data/repositories/favorites_repository.dart';
+import 'features/favorites/presentation/controllers/favorites_controller.dart';
 import 'network/api_client.dart';
 import 'utils/responsive.dart';
 
@@ -24,16 +26,23 @@ Future<void> _registerCoreServices() async {
   final storage = LocalStorageService(prefs);
   final networkInfo = NetworkInfo();
   final apiClient = ApiClient();
+  final favoritesRepository = FavoritesRepository(storage);
+  final exerciseRepository = ExerciseRepository(
+    storage: storage,
+    apiClient: apiClient,
+    networkInfo: networkInfo,
+  );
 
   Get.put(storage, permanent: true);
   Get.put(networkInfo, permanent: true);
   Get.put(apiClient, permanent: true);
   Get.put(AuthRepository(storage), permanent: true);
+  Get.put(exerciseRepository, permanent: true);
+  Get.put(favoritesRepository, permanent: true);
   Get.put(
-    ExerciseRepository(
-      storage: storage,
-      apiClient: apiClient,
-      networkInfo: networkInfo,
+    FavoritesController(
+      favoritesRepository: favoritesRepository,
+      exerciseRepository: exerciseRepository,
     ),
     permanent: true,
   );

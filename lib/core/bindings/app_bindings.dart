@@ -6,6 +6,7 @@ import '../../features/auth/presentation/controllers/splash_controller.dart';
 import '../../features/exercises/data/repositories/exercise_repository.dart';
 import '../../features/exercises/presentation/controllers/exercise_controller.dart';
 import '../../features/exercises/presentation/controllers/exercise_detail_controller.dart';
+import '../../features/favorites/presentation/controllers/favorites_controller.dart';
 
 class SplashBinding extends Bindings {
   @override
@@ -42,5 +43,15 @@ class ExerciseDetailBinding extends Bindings {
       Get.delete<ExerciseDetailController>(force: true);
     }
     Get.put(ExerciseDetailController(Get.find<ExerciseRepository>()));
+  }
+}
+
+class FavoritesBinding extends Bindings {
+  @override
+  void dependencies() {
+    AuthBinding().dependencies();
+    if (Get.isRegistered<FavoritesController>()) {
+      Get.find<FavoritesController>().loadFavoriteExercises();
+    }
   }
 }

@@ -217,6 +217,16 @@ class _Header extends StatelessWidget {
                 ),
               ),
               IconButton(
+                tooltip: 'Favourites',
+                onPressed: () => Get.toNamed(AppRoutes.favorites),
+                style: IconButton.styleFrom(
+                  backgroundColor:
+                      AppColors.textOnCoral.withValues(alpha: 0.16),
+                ),
+                icon: Icon(Icons.favorite_rounded, size: 20.sp),
+              ),
+              SizedBox(width: 4.w),
+              IconButton(
                 tooltip: 'Sign out',
                 onPressed: auth.logout,
                 style: IconButton.styleFrom(

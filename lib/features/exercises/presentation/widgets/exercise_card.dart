@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../utils/responsive.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../data/models/exercise_model.dart';
 
 class ExerciseCard extends StatelessWidget {
@@ -109,9 +110,9 @@ class _DenseCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textSecondary.withValues(alpha: 0.5),
+              FavoriteButton(
+                exerciseId: exercise.id,
+                color: AppColors.favorite,
                 size: 22.sp,
               ),
             ],
@@ -151,6 +152,15 @@ class _GridCard extends StatelessWidget {
                     child: _Chip(
                       label: exercise.difficulty,
                       color: DifficultyColors.forLevel(exercise.difficulty),
+                    ),
+                  ),
+                  Positioned(
+                    right: 4.w,
+                    top: 4.h,
+                    child: FavoriteButton(
+                      exerciseId: exercise.id,
+                      color: Colors.white,
+                      size: 22.sp,
                     ),
                   ),
                 ],

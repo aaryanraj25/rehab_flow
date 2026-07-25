@@ -13,6 +13,8 @@ import 'package:rehab_flow/features/auth/presentation/screens/login_screen.dart'
 import 'package:rehab_flow/features/exercises/data/models/exercise_model.dart';
 import 'package:rehab_flow/features/exercises/data/repositories/exercise_repository.dart';
 import 'package:rehab_flow/features/exercises/presentation/controllers/exercise_controller.dart';
+import 'package:rehab_flow/features/favorites/data/repositories/favorites_repository.dart';
+import 'package:rehab_flow/features/favorites/presentation/controllers/favorites_controller.dart';
 import 'package:rehab_flow/main.dart';
 import 'package:rehab_flow/network/api_client.dart';
 import 'package:rehab_flow/utils/responsive.dart';
@@ -21,6 +23,7 @@ import 'package:rehab_flow/utils/validators.dart';
 class _OfflineNetworkInfo extends NetworkInfo {
   @override
   Future<bool> get isConnected async => false;
+
 }
 
 void main() {
@@ -42,6 +45,15 @@ void main() {
         storage: storage,
         apiClient: apiClient,
         networkInfo: networkInfo,
+      ),
+      permanent: true,
+    );
+    final favoritesRepository = FavoritesRepository(storage);
+    Get.put(favoritesRepository, permanent: true);
+    Get.put(
+      FavoritesController(
+        favoritesRepository: favoritesRepository,
+        exerciseRepository: Get.find<ExerciseRepository>(),
       ),
       permanent: true,
     );
@@ -189,5 +201,23 @@ void main() {
     controller.clearFilters();
     expect(controller.filteredExercises.length, total);
     controller.onClose();
+  });
+
+  test('FavoritesRepository persists favourite ids locally', () async {
+    final favorites = Get.find<FavoritesRepository>();
+    expect(favorites.isFavorite('1'), isFalse);
+
+    expect(await favorites.toggleFavorite('1'), isTrue);
+    expect(favorites.isFavorite('1'), isTrue);
+    expect(favorites.getFavoriteIds(), contains('1'));
+
+    expect(await favorites.toggleFavorite('1'), isFalse);
+    expect(favorites.isFavorite('1'), isFalse);
+
+    final controller = Get.find<FavoritesController>();
+    await controller.toggleFavorite('2');
+    expect(controller.isFavorite('2'), isTrue);
+    await controller.loadFavoriteExercises();
+    expect(controller.favoriteExercises.any((e) => e.id == '2'), isTrue);
   });
 }

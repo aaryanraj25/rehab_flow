@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_state_views.dart';
 import '../../../../utils/responsive.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../data/models/exercise_model.dart';
 import '../controllers/exercise_detail_controller.dart';
 import '../widgets/exercise_card.dart';
@@ -52,6 +53,14 @@ class ExerciseDetailScreen extends GetView<ExerciseDetailController> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
+                  actions: [
+                    FavoriteButton(
+                      exerciseId: exercise.id,
+                      color: AppColors.textOnCoral,
+                      size: 24.sp,
+                    ),
+                    SizedBox(width: 4.w),
+                  ],
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
