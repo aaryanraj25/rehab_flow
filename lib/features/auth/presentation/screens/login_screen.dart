@@ -44,6 +44,8 @@ class _CompactLoginBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
+
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -54,7 +56,7 @@ class _CompactLoginBody extends StatelessWidget {
           child: Column(
             children: [
               _BrandHeader(compact: Responsive.isPhone(context)),
-              SizedBox(height: 20.h),
+              SizedBox(height: isTablet ? 28 : 20.h),
               const _LoginCard(),
             ],
           ),
@@ -101,7 +103,7 @@ class _BrandHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final markSize = 52.w;
+    final markSize = Responsive.s(context, 52.w, 56);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -111,46 +113,46 @@ class _BrandHeader extends StatelessWidget {
           height: markSize,
           decoration: BoxDecoration(
             color: AppColors.textOnCoral.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(Responsive.s(context, 16.r, 16)),
             border: Border.all(
               color: AppColors.textOnCoral.withValues(alpha: 0.35),
             ),
           ),
           child: Icon(
             Icons.accessibility_new_rounded,
-            size: 28.sp,
+            size: Responsive.s(context, 28.sp, 28),
             color: AppColors.textOnCoral,
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: Responsive.s(context, 12.h, 12)),
         Text(
           AppConstants.appName,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 26.sp,
+            fontSize: Responsive.s(context, 26.sp, 28),
             fontWeight: FontWeight.w900,
             letterSpacing: -0.6,
             color: AppColors.textOnCoral,
           ),
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: Responsive.s(context, 4.h, 4)),
         Text(
           'Move better. Recover smarter.',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textOnCoral.withValues(alpha: 0.9),
-            fontSize: 13.sp,
+            fontSize: Responsive.s(context, 13.sp, 14),
             fontWeight: FontWeight.w500,
           ),
         ),
         if (!compact) ...[
-          SizedBox(height: 12.h),
+          SizedBox(height: Responsive.s(context, 12.h, 10)),
           Text(
             AppConstants.appTagline,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textOnCoral.withValues(alpha: 0.75),
-              fontSize: 13.sp,
+              fontSize: Responsive.s(context, 13.sp, 13),
               height: 1.35,
             ),
           ),
@@ -167,15 +169,20 @@ class _LoginCard extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(18.w, 20.h, 18.w, 18.h),
+      padding: EdgeInsets.fromLTRB(
+        Responsive.s(context, 18.w, 28),
+        Responsive.s(context, 20.h, 24),
+        Responsive.s(context, 18.w, 28),
+        Responsive.s(context, 18.h, 22),
+      ),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(Responsive.s(context, 20.r, 20)),
         boxShadow: [
           BoxShadow(
             color: AppColors.ink.withValues(alpha: 0.16),
-            blurRadius: 24.r,
-            offset: Offset(0, 10.h),
+            blurRadius: Responsive.s(context, 24.r, 24),
+            offset: Offset(0, Responsive.s(context, 10.h, 10)),
           ),
         ],
       ),
@@ -188,21 +195,21 @@ class _LoginCard extends GetView<AuthController> {
             Text(
               'Welcome back',
               style: TextStyle(
-                fontSize: 20.sp,
+                fontSize: Responsive.s(context, 20.sp, 20),
                 fontWeight: FontWeight.w800,
                 color: AppColors.ink,
                 letterSpacing: -0.3,
               ),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: Responsive.s(context, 4.h, 4)),
             Text(
               'Sign in to continue your rehab plan',
               style: TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 13.sp,
+                fontSize: Responsive.s(context, 13.sp, 13),
               ),
             ),
-            SizedBox(height: 18.h),
+            SizedBox(height: Responsive.s(context, 18.h, 18)),
             AuthTextField(
               controller: controller.emailController,
               label: 'Email',
@@ -212,7 +219,7 @@ class _LoginCard extends GetView<AuthController> {
               prefixIcon: Icons.mail_outline_rounded,
               validator: Validators.email,
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: Responsive.s(context, 12.h, 12)),
             Obx(
               () => AuthTextField(
                 controller: controller.passwordController,
@@ -226,35 +233,38 @@ class _LoginCard extends GetView<AuthController> {
                 onFieldSubmitted: (_) => controller.login(),
                 suffix: IconButton(
                   onPressed: controller.togglePasswordVisibility,
+                  visualDensity: VisualDensity.compact,
                   icon: Icon(
                     controller.obscurePassword.value
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
                     color: AppColors.textSecondary,
-                    size: 20.sp,
+                    size: Responsive.s(context, 20.sp, 18),
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: Responsive.s(context, 8.h, 8)),
             Obx(() {
               final error = controller.errorMessage.value;
               if (error == null) {
                 return const SizedBox.shrink();
               }
               return Padding(
-                padding: EdgeInsets.only(bottom: 6.h),
+                padding: EdgeInsets.only(
+                  bottom: Responsive.s(context, 6.h, 6),
+                ),
                 child: Text(
                   error,
                   style: TextStyle(
                     color: AppColors.error,
-                    fontSize: 12.sp,
+                    fontSize: Responsive.s(context, 12.sp, 12),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               );
             }),
-            SizedBox(height: 6.h),
+            SizedBox(height: Responsive.s(context, 6.h, 6)),
             Obx(
               () => SizedBox(
                 height: Responsive.buttonHeight(),
@@ -262,10 +272,10 @@ class _LoginCard extends GetView<AuthController> {
                   onPressed:
                       controller.isLoading.value ? null : controller.login,
                   child: controller.isLoading.value
-                      ? SizedBox(
-                          width: 18.w,
-                          height: 18.w,
-                          child: const CircularProgressIndicator(
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
                             strokeWidth: 2.2,
                             color: AppColors.textOnCoral,
                           ),
@@ -273,19 +283,23 @@ class _LoginCard extends GetView<AuthController> {
                       : Text(
                           'Sign In',
                           style: TextStyle(
-                            fontSize: 15.sp,
+                            fontSize: Responsive.s(context, 15.sp, 15),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                 ),
               ),
             ),
-            SizedBox(height: 14.h),
+            SizedBox(height: Responsive.s(context, 14.h, 14)),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: Responsive.s(context, 12.w, 12),
+                vertical: Responsive.s(context, 10.h, 10),
+              ),
               decoration: BoxDecoration(
                 color: AppColors.coral.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius:
+                    BorderRadius.circular(Responsive.s(context, 12.r, 12)),
               ),
               child: Text(
                 'Mock auth · any valid email + password '
@@ -293,7 +307,7 @@ class _LoginCard extends GetView<AuthController> {
                 '${AppConstants.demoEmailHint} / ${AppConstants.demoPasswordHint}',
                 style: TextStyle(
                   color: AppColors.textSecondary,
-                  fontSize: 11.5.sp,
+                  fontSize: Responsive.s(context, 11.5.sp, 12),
                   height: 1.4,
                   fontWeight: FontWeight.w500,
                 ),

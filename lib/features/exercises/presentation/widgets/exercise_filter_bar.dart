@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../utils/responsive.dart';
 import '../controllers/exercise_controller.dart';
 
 /// Opens the filter sheet and shows a badge when facets are active.
@@ -11,32 +12,35 @@ class ExerciseFilterButton extends GetView<ExerciseController> {
 
   @override
   Widget build(BuildContext context) {
+    final size = Responsive.s(context, 48.h, 42);
+    final radius = Responsive.s(context, 16.r, 12);
+
     return Obx(() {
       final count = controller.activeFacetFilterCount;
       return Material(
         color: count > 0 ? AppColors.coral : AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(radius),
         child: InkWell(
           onTap: () => _openFilterSheet(context),
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(radius),
           child: SizedBox(
-            width: 52.w,
-            height: 48.h,
+            width: size,
+            height: size,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 Icon(
                   Icons.tune_rounded,
-                  size: 22.sp,
+                  size: Responsive.s(context, 22.sp, 20),
                   color: count > 0 ? AppColors.textOnCoral : AppColors.coralDeep,
                 ),
                 if (count > 0)
                   Positioned(
-                    top: 8.h,
-                    right: 8.w,
+                    top: Responsive.s(context, 8.h, 6),
+                    right: Responsive.s(context, 8.w, 6),
                     child: Container(
-                      width: 16.w,
-                      height: 16.w,
+                      width: Responsive.s(context, 16.w, 14),
+                      height: Responsive.s(context, 16.w, 14),
                       alignment: Alignment.center,
                       decoration: const BoxDecoration(
                         color: AppColors.ink,
@@ -45,7 +49,7 @@ class ExerciseFilterButton extends GetView<ExerciseController> {
                       child: Text(
                         '$count',
                         style: TextStyle(
-                          fontSize: 9.sp,
+                          fontSize: Responsive.s(context, 9.sp, 9),
                           fontWeight: FontWeight.w800,
                           color: AppColors.textOnCoral,
                         ),
@@ -61,13 +65,19 @@ class ExerciseFilterButton extends GetView<ExerciseController> {
   }
 
   void _openFilterSheet(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: AppColors.surfaceElevated,
+      constraints: isTablet
+          ? BoxConstraints(maxWidth: Responsive.maxContentWidth(context))
+          : null,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(Responsive.s(context, 24.r, 18)),
+        ),
       ),
       builder: (context) => const _ExerciseFilterSheet(),
     );
@@ -110,11 +120,12 @@ class ExerciseActiveFilters extends GetView<ExerciseController> {
         children: [
           Expanded(
             child: SizedBox(
-              height: 34.h,
+              height: Responsive.s(context, 34.h, 30),
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: chips.length,
-                separatorBuilder: (context, index) => SizedBox(width: 8.w),
+                separatorBuilder: (context, index) =>
+                    SizedBox(width: Responsive.s(context, 8.w, 6)),
                 itemBuilder: (context, index) => chips[index],
               ),
             ),
@@ -143,10 +154,10 @@ class _ActiveChip extends StatelessWidget {
       onDeleted: onDeleted,
       deleteIcon: Icon(
         isAction ? Icons.close_rounded : Icons.cancel_rounded,
-        size: 16.sp,
+        size: Responsive.s(context, 16.sp, 14),
       ),
       labelStyle: TextStyle(
-        fontSize: 12.sp,
+        fontSize: Responsive.s(context, 12.sp, 11),
         fontWeight: FontWeight.w700,
         color: isAction ? AppColors.coralDeep : AppColors.ink,
       ),
@@ -158,7 +169,9 @@ class _ActiveChip extends StatelessWidget {
       ),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: EdgeInsets.symmetric(horizontal: 2.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: Responsive.s(context, 2.w, 2),
+      ),
     );
   }
 }
@@ -169,13 +182,22 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    final maxBodyHeight = media.size.height * 0.48;
+    final isTablet = Responsive.isTablet(context);
+    final maxBodyHeight = media.size.height * (isTablet ? 0.42 : 0.48);
+    final hPad = Responsive.s(context, 20.w, 20);
+    final vPad = Responsive.s(context, 12.h, 10);
 
+    // Content-sized sheet — do NOT use Align(bottom) with isScrollControlled,
+    // or the sheet expands full-height and leaves a huge empty gap above.
     return Padding(
-      // Keyboard only — safe area is handled by the sheet.
       padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 16.h),
+        padding: EdgeInsets.fromLTRB(
+          hPad,
+          vPad,
+          hPad,
+          Responsive.s(context, 16.h, 14),
+        ),
         child: Obx(() {
           final _ = (
             controller.allExercises.length,
@@ -191,22 +213,22 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
             children: [
               Center(
                 child: Container(
-                  width: 40.w,
-                  height: 4.h,
+                  width: Responsive.s(context, 40.w, 36),
+                  height: 4,
                   decoration: BoxDecoration(
                     color: AppColors.border,
-                    borderRadius: BorderRadius.circular(99.r),
+                    borderRadius: BorderRadius.circular(99),
                   ),
                 ),
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: Responsive.s(context, 16.h, 12)),
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       'Filters',
                       style: TextStyle(
-                        fontSize: 20.sp,
+                        fontSize: Responsive.s(context, 20.sp, 18),
                         fontWeight: FontWeight.w900,
                         color: AppColors.ink,
                         letterSpacing: -0.4,
@@ -219,7 +241,7 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
                       child: Text(
                         'Reset',
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: Responsive.s(context, 13.sp, 13),
                           fontWeight: FontWeight.w700,
                           color: AppColors.coralDeep,
                         ),
@@ -227,7 +249,7 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
                     ),
                 ],
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: Responsive.s(context, 8.h, 6)),
               ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: maxBodyHeight),
                 child: SingleChildScrollView(
@@ -241,7 +263,7 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
                         onSelected: controller.selectCategory,
                         multiSelect: true,
                       ),
-                      SizedBox(height: 16.h),
+                      SizedBox(height: Responsive.s(context, 16.h, 12)),
                       _FilterSection(
                         title: 'Difficulty',
                         options: controller.difficulties,
@@ -251,7 +273,7 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
                         onSelected: (option) =>
                             controller.selectDifficulty(option),
                       ),
-                      SizedBox(height: 16.h),
+                      SizedBox(height: Responsive.s(context, 16.h, 12)),
                       _FilterSection(
                         title: 'Target muscle',
                         options: controller.targetMuscles,
@@ -259,21 +281,21 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
                         onSelected: controller.selectMuscle,
                         multiSelect: true,
                       ),
-                      SizedBox(height: 8.h),
+                      SizedBox(height: Responsive.s(context, 8.h, 6)),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: Responsive.s(context, 12.h, 10)),
               SizedBox(
-                height: 48.h,
+                height: Responsive.s(context, 48.h, 44),
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
                     'Show ${controller.filteredExercises.length} exercises',
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: Responsive.s(context, 15.sp, 14),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -312,26 +334,26 @@ class _FilterSection extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: Responsive.s(context, 13.sp, 12),
             fontWeight: FontWeight.w800,
             color: AppColors.textSecondary,
           ),
         ),
         if (multiSelect) ...[
-          SizedBox(height: 2.h),
+          SizedBox(height: Responsive.s(context, 2.h, 2)),
           Text(
             'Select one or more',
             style: TextStyle(
-              fontSize: 11.sp,
+              fontSize: Responsive.s(context, 11.sp, 11),
               fontWeight: FontWeight.w500,
               color: AppColors.textSecondary.withValues(alpha: 0.85),
             ),
           ),
         ],
-        SizedBox(height: 8.h),
+        SizedBox(height: Responsive.s(context, 8.h, 6)),
         Wrap(
-          spacing: 8.w,
-          runSpacing: 8.h,
+          spacing: Responsive.s(context, 8.w, 6),
+          runSpacing: Responsive.s(context, 8.h, 6),
           children: options.map((option) {
             final isSelected = selected.contains(option);
             return FilterChip(
@@ -341,7 +363,7 @@ class _FilterSection extends StatelessWidget {
               checkmarkColor: AppColors.textOnCoral,
               onSelected: (_) => onSelected(option),
               labelStyle: TextStyle(
-                fontSize: 12.sp,
+                fontSize: Responsive.s(context, 12.sp, 12),
                 fontWeight: FontWeight.w700,
                 color: isSelected ? AppColors.textOnCoral : AppColors.ink,
               ),
@@ -352,6 +374,7 @@ class _FilterSection extends StatelessWidget {
               ),
               visualDensity: VisualDensity.compact,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
             );
           }).toList(),
         ),

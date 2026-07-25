@@ -58,14 +58,18 @@ class AppTheme {
         foregroundColor: AppColors.textOnCoral,
         elevation: 0,
         scrolledUnderElevation: 0,
+        // Logical height — `.sp` / Material3 defaults inflate on tablets.
+        toolbarHeight: 48,
         centerTitle: false,
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           color: AppColors.textOnCoral,
-          fontSize: 22.sp,
+          fontSize: 18,
           fontWeight: FontWeight.w800,
           letterSpacing: -0.3,
         ),
-        iconTheme: const IconThemeData(color: AppColors.textOnCoral),
+        iconTheme: const IconThemeData(color: AppColors.textOnCoral, size: 22),
+        actionsIconTheme:
+            const IconThemeData(color: AppColors.textOnCoral, size: 22),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

@@ -83,8 +83,10 @@ class LocalStorageService {
 
   // ── Favourites (full ExerciseModel snapshots) ─────────────────────────────
 
-  List<String> getFavoriteIds() =>
-      _favoritesBox.keys.whereType<String>().toList();
+  List<String> getFavoriteIds() => _favoritesBox.keys
+      .map((key) => key.toString())
+      .where((key) => key.isNotEmpty)
+      .toList();
 
   List<ExerciseModel> getFavoriteExercises() =>
       getFavoriteIds()
@@ -97,7 +99,7 @@ class LocalStorageService {
   bool isFavorite(String exerciseId) => _favoritesBox.containsKey(exerciseId);
 
   Future<void> saveFavorite(ExerciseModel exercise) =>
-      _favoritesBox.put(exercise.id, exercise);
+      _favoritesBox.put(exercise.id, exercise.clone());
 
   Future<void> removeFavorite(String exerciseId) =>
       _favoritesBox.delete(exerciseId);

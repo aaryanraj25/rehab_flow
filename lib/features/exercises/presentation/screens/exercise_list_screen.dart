@@ -47,18 +47,27 @@ class ExerciseListScreen extends GetView<ExerciseController> {
               }
               return const SizedBox.shrink();
             }),
-            Padding(
-              padding: EdgeInsets.fromLTRB(pad, 12.h, pad, 0),
+            Align(
+              alignment: Alignment.center,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: Responsive.maxContentWidth(context),
                 ),
-                child: Row(
-                  children: [
-                    const Expanded(child: ExerciseSearchBar()),
-                    SizedBox(width: 10.w),
-                    const ExerciseFilterButton(),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    pad,
+                    Responsive.s(context, 12.h, 10),
+                    pad,
+                    0,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Expanded(child: ExerciseSearchBar()),
+                      SizedBox(width: Responsive.s(context, 10.w, 8)),
+                      const ExerciseFilterButton(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -67,14 +76,17 @@ class ExerciseListScreen extends GetView<ExerciseController> {
                 return SizedBox(height: 10.h);
               }
               return Align(
-                alignment: Alignment.centerLeft,
+                alignment: Alignment.center,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: Responsive.maxContentWidth(context),
                   ),
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(pad, 10.h, pad, 4.h),
-                    child: const ExerciseActiveFilters(),
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: ExerciseActiveFilters(),
+                    ),
                   ),
                 ),
               );
@@ -165,10 +177,13 @@ class ExerciseListScreen extends GetView<ExerciseController> {
                                     sliver: SliverGrid(
                                       gridDelegate:
                                           SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: columns.clamp(2, 4),
-                                        crossAxisSpacing: 12.w,
-                                        mainAxisSpacing: 12.h,
-                                        childAspectRatio: 0.82,
+                                        crossAxisCount: columns.clamp(2, 5),
+                                        crossAxisSpacing: 14,
+                                        mainAxisSpacing: 14,
+                                        childAspectRatio:
+                                            Responsive.exerciseGridAspectRatio(
+                                          context,
+                                        ),
                                       ),
                                       delegate: SliverChildBuilderDelegate(
                                         (context, index) {
@@ -247,67 +262,98 @@ class _Header extends StatelessWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(pad, 8.h, pad - 4.w, 14.h),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppConstants.appName,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textOnCoral.withValues(alpha: 0.85),
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Obx(
-                      () => Text(
-                        'Hey, ${auth.currentUser.value?.displayName ?? 'Athlete'}',
-                        style: TextStyle(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                          color: AppColors.textOnCoral,
+        child: Align(
+          alignment: Alignment.center,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: Responsive.maxContentWidth(context),
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                pad,
+                Responsive.s(context, 6.h, 4),
+                pad - 4,
+                Responsive.s(context, 10.h, 8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          AppConstants.appName,
+                          style: TextStyle(
+                            fontSize: Responsive.s(context, 12.sp, 11),
+                            fontWeight: FontWeight.w700,
+                            color:
+                                AppColors.textOnCoral.withValues(alpha: 0.85),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 2),
+                        Obx(
+                          () => Text(
+                            'Hey, ${auth.currentUser.value?.displayName ?? 'Athlete'}',
+                            style: TextStyle(
+                              fontSize: Responsive.s(context, 22.sp, 18),
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.5,
+                              color: AppColors.textOnCoral,
+                              height: 1.15,
+                            ),
+                          ),
+                        ),
+                        if (Responsive.isPhone(context)) ...[
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Find a move and keep recovering.',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textOnCoral
+                                  .withValues(alpha: 0.9),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Find a move and keep recovering.',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textOnCoral.withValues(alpha: 0.9),
-                      ),
+                  ),
+                  IconButton(
+                    tooltip: 'Favourites',
+                    visualDensity: VisualDensity.compact,
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          AppColors.textOnCoral.withValues(alpha: 0.16),
+                      minimumSize: const Size(40, 40),
+                      padding: const EdgeInsets.all(8),
                     ),
-                  ],
-                ),
+                    onPressed: () => Get.toNamed(AppRoutes.favorites),
+                    icon: Icon(
+                      Icons.favorite_rounded,
+                      size: Responsive.s(context, 20.sp, 18),
+                    ),
+                  ),
+                  SizedBox(width: Responsive.s(context, 4.w, 4)),
+                  IconButton(
+                    tooltip: 'Sign out',
+                    visualDensity: VisualDensity.compact,
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          AppColors.textOnCoral.withValues(alpha: 0.16),
+                      minimumSize: const Size(40, 40),
+                      padding: const EdgeInsets.all(8),
+                    ),
+                    onPressed: auth.logout,
+                    icon: Icon(
+                      Icons.logout_rounded,
+                      size: Responsive.s(context, 20.sp, 18),
+                    ),
+                  ),
+                ],
               ),
-              IconButton(
-                tooltip: 'Favourites',
-                onPressed: () => Get.toNamed(AppRoutes.favorites),
-                style: IconButton.styleFrom(
-                  backgroundColor:
-                      AppColors.textOnCoral.withValues(alpha: 0.16),
-                ),
-                icon: Icon(Icons.favorite_rounded, size: 20.sp),
-              ),
-              SizedBox(width: 4.w),
-              IconButton(
-                tooltip: 'Sign out',
-                onPressed: auth.logout,
-                style: IconButton.styleFrom(
-                  backgroundColor:
-                      AppColors.textOnCoral.withValues(alpha: 0.16),
-                ),
-                icon: Icon(Icons.logout_rounded, size: 20.sp),
-              ),
-            ],
+            ),
           ),
         ),
       ),

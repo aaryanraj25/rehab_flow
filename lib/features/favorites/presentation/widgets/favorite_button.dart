@@ -3,17 +3,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../exercises/data/models/exercise_model.dart';
 import '../controllers/favorites_controller.dart';
 
 class FavoriteButton extends StatefulWidget {
   const FavoriteButton({
     super.key,
     required this.exerciseId,
+    this.exercise,
     this.color,
     this.size,
   });
 
   final String exerciseId;
+  /// Optional full model — preferred so favouriting does not depend on a lookup.
+  final ExerciseModel? exercise;
   final Color? color;
   final double? size;
 
@@ -47,7 +51,14 @@ class _FavoriteButtonState extends State<FavoriteButton>
 
   Future<void> _toggle(FavoritesController favorites) async {
     _controller.forward(from: 0);
-    await favorites.toggleFavorite(widget.exerciseId);
+    try {
+      await favorites.toggleFavorite(
+        widget.exerciseId,
+        snapshot: widget.exercise,
+      );
+    } catch (_) {
+      // Keep UI responsive; heart state stays driven by controller obs.
+    }
   }
 
   @override
@@ -61,15 +72,25 @@ class _FavoriteButtonState extends State<FavoriteButton>
 
     return Obx(() {
       final isFavorite = favorites.isFavorite(widget.exerciseId);
+      // Filled hearts stay coral-red so they read clearly on light photos.
+      final iconColor = isFavorite
+          ? AppColors.favorite
+          : (widget.color ?? AppColors.textOnCoral);
+
       return ScaleTransition(
         scale: _scale,
         child: IconButton(
           tooltip: isFavorite ? 'Remove from favourites' : 'Add to favourites',
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(
+            minWidth: iconSize + 8,
+            minHeight: iconSize + 8,
+          ),
+          visualDensity: VisualDensity.compact,
           onPressed: () => _toggle(favorites),
           icon: Icon(
             isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-            color: widget.color ??
-                (isFavorite ? AppColors.favorite : AppColors.textOnCoral),
+            color: iconColor,
             size: iconSize,
           ),
         ),

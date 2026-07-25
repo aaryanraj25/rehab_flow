@@ -96,20 +96,23 @@ class _StateCanvas extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: Responsive.value(
-              context,
-              phone: 360.w,
-              tablet: 440.w,
-            ),
+            maxWidth: Responsive.s(context, 360.w, 360),
           ),
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(28.w, showStrip ? 20.h : 32.h, 28.w, 32.h),
+            padding: EdgeInsets.fromLTRB(
+              Responsive.s(context, 28.w, 24),
+              showStrip
+                  ? Responsive.s(context, 20.h, 16)
+                  : Responsive.s(context, 32.h, 24),
+              Responsive.s(context, 28.w, 24),
+              Responsive.s(context, 32.h, 24),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (showStrip) ...[
                   _SignalStrip(kind: kind),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: Responsive.s(context, 20.h, 14)),
                 ],
                 child,
               ],
@@ -178,7 +181,7 @@ class _Eyebrow extends StatelessWidget {
       text,
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontSize: 11.sp,
+        fontSize: Responsive.s(context, 11.sp, 11),
         fontWeight: FontWeight.w900,
         letterSpacing: 1.6,
         color: color,
@@ -201,10 +204,14 @@ class _IconFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = overrideIcon ?? tone.icon;
+    final frame = Responsive.s(context, 120.w, 88);
+    final ring = Responsive.s(context, 110.w, 80);
+    final core = Responsive.s(context, 88.w, 64);
+    final iconSize = Responsive.s(context, 40.sp, 28);
 
     return SizedBox(
-      width: 120.w,
-      height: 120.w,
+      width: frame,
+      height: frame,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -212,8 +219,8 @@ class _IconFrame extends StatelessWidget {
             const _LoadingRings()
           else
             Container(
-              width: 110.w,
-              height: 110.w,
+              width: ring,
+              height: ring,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -224,8 +231,8 @@ class _IconFrame extends StatelessWidget {
               ),
             ),
           Container(
-            width: 88.w,
-            height: 88.w,
+            width: core,
+            height: core,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -239,12 +246,12 @@ class _IconFrame extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: tone.accent.withValues(alpha: 0.28),
-                  blurRadius: 22,
-                  offset: const Offset(0, 10),
+                  blurRadius: Responsive.s(context, 22, 14),
+                  offset: Offset(0, Responsive.s(context, 10, 6)),
                 ),
               ],
             ),
-            child: Icon(icon, size: 40.sp, color: AppColors.textOnCoral),
+            child: Icon(icon, size: iconSize, color: AppColors.textOnCoral),
           ),
         ],
       ),
@@ -391,19 +398,22 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: Responsive.buttonHeight() + 4.h,
+      height: Responsive.s(context, Responsive.buttonHeight() + 4.h, 44),
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.ink,
-          side: const BorderSide(color: AppColors.ink, width: 1.6),
+          side: const BorderSide(color: AppColors.ink, width: 1.4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.r),
+            borderRadius: BorderRadius.circular(Responsive.s(context, 18.r, 14)),
           ),
         ),
         child: Text(
           label,
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800),
+          style: TextStyle(
+            fontSize: Responsive.s(context, 14.sp, 14),
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
@@ -496,34 +506,34 @@ class AppEmptyView extends StatelessWidget {
             kind: _StateKind.empty,
             overrideIcon: icon,
           ),
-          SizedBox(height: 28.h),
+          SizedBox(height: Responsive.s(context, 28.h, 18)),
           _Eyebrow(text: tone.eyebrow, color: tone.accent),
-          SizedBox(height: 10.h),
+          SizedBox(height: Responsive.s(context, 10.h, 8)),
           Text(
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 24.sp,
+              fontSize: Responsive.s(context, 24.sp, 20),
               fontWeight: FontWeight.w900,
               letterSpacing: -0.6,
               color: AppColors.ink,
             ),
           ),
           if (subtitle != null) ...[
-            SizedBox(height: 10.h),
+            SizedBox(height: Responsive.s(context, 10.h, 8)),
             Text(
               subtitle!,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 14.sp,
-                height: 1.45,
+                fontSize: Responsive.s(context, 14.sp, 13),
+                height: 1.4,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ],
           if (actionLabel != null && onAction != null) ...[
-            SizedBox(height: 28.h),
+            SizedBox(height: Responsive.s(context, 28.h, 18)),
             _ActionButton(label: actionLabel!, onPressed: onAction!),
           ],
         ],
@@ -647,33 +657,47 @@ class OfflineBanner extends StatelessWidget {
             ? 'Back online — data can refresh'
             : 'Offline — showing cached exercises');
 
+    final iconBox = Responsive.s(context, 28.w, 22);
+    final iconSize = Responsive.s(context, 16.sp, 14);
+    final fontSize = Responsive.s(context, 13.sp, 12);
+
     return Material(
       color: background,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-        child: Row(
-          children: [
-            Container(
-              width: 28.w,
-              height: 28.w,
-              decoration: BoxDecoration(
-                color: AppColors.textOnCoral.withValues(alpha: 0.16),
-                shape: BoxShape.circle,
+      child: SafeArea(
+        top: false,
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: Responsive.s(context, 14.w, 16),
+            vertical: Responsive.s(context, 8.h, 6),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: iconBox,
+                height: iconBox,
+                decoration: BoxDecoration(
+                  color: AppColors.textOnCoral.withValues(alpha: 0.16),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.textOnCoral, size: iconSize),
               ),
-              child: Icon(icon, color: AppColors.textOnCoral, size: 16.sp),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: Text(
-                resolved,
-                style: TextStyle(
-                  color: AppColors.textOnCoral,
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
+              SizedBox(width: Responsive.s(context, 10.w, 8)),
+              Expanded(
+                child: Text(
+                  resolved,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColors.textOnCoral,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../utils/responsive.dart';
 
 class AuthTextField extends StatelessWidget {
   const AuthTextField({
@@ -31,6 +32,14 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labelSize = Responsive.s(context, 12.5.sp, 12);
+    final fieldSize = Responsive.s(context, 14.sp, 14);
+    final hintSize = Responsive.s(context, 13.sp, 13);
+    final iconSize = Responsive.s(context, 20.sp, 18);
+    final radius = Responsive.s(context, 14.r, 12);
+    final hPad = Responsive.s(context, 14.w, 14);
+    final vPad = Responsive.s(context, 12.h, 12);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,12 +47,12 @@ class AuthTextField extends StatelessWidget {
           label,
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            fontSize: 12.5.sp,
+            fontSize: labelSize,
             letterSpacing: 0.15,
             color: AppColors.ink,
           ),
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: Responsive.s(context, 6.h, 6)),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
@@ -51,42 +60,54 @@ class AuthTextField extends StatelessWidget {
           validator: validator,
           textInputAction: textInputAction,
           onFieldSubmitted: onFieldSubmitted,
-          // Quiet while focused; validate on blur, then live as the user edits.
           autovalidateMode: AutovalidateMode.onUnfocus,
           style: TextStyle(
             color: AppColors.ink,
             fontWeight: FontWeight.w600,
-            fontSize: 14.sp,
+            fontSize: fieldSize,
+            height: 1.25,
           ),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: TextStyle(
+              color: AppColors.textSecondary.withValues(alpha: 0.65),
+              fontSize: hintSize,
+              fontWeight: FontWeight.w500,
+              height: 1.25,
+            ),
             isDense: true,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 14.w,
-              vertical: 12.h,
+              horizontal: hPad,
+              vertical: vPad,
             ),
             prefixIcon: prefixIcon == null
                 ? null
-                : Icon(prefixIcon, color: AppColors.coralDeep, size: 20.sp),
+                : Icon(prefixIcon, color: AppColors.coralDeep, size: iconSize),
+            prefixIconConstraints: BoxConstraints(
+              minWidth: Responsive.s(context, 44.w, 40),
+              minHeight: Responsive.s(context, 44.h, 44),
+            ),
             suffixIcon: suffix,
+            filled: true,
+            fillColor: AppColors.background.withValues(alpha: 0.55),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14.r),
-              borderSide: const BorderSide(color: AppColors.ink, width: 1.6),
+              borderRadius: BorderRadius.circular(radius),
+              borderSide: const BorderSide(color: AppColors.ink, width: 1.4),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(radius),
               borderSide: const BorderSide(color: AppColors.error),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(radius),
               borderSide: const BorderSide(color: AppColors.error, width: 1.4),
             ),
           ),

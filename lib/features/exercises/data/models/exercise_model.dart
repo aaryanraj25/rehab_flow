@@ -97,6 +97,21 @@ class ExerciseModel extends HiveObject {
         'imageUrl': imageUrl,
         'relatedIds': relatedIds,
       };
+
+  /// Fresh instance not attached to any Hive box (HiveObject can only live in one).
+  ExerciseModel clone() => ExerciseModel(
+        id: id,
+        name: name,
+        category: category,
+        difficulty: difficulty,
+        targetMuscle: targetMuscle,
+        description: description,
+        instructions: instructions,
+        equipment: equipment,
+        thumbnailUrl: thumbnailUrl,
+        imageUrl: imageUrl,
+        relatedIds: List<String>.from(relatedIds),
+      );
 }
 
 /// Result wrapper so UI can show cache / offline / soft-refresh failure state.

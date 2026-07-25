@@ -16,36 +16,74 @@ class FavoritesScreen extends GetView<FavoritesController> {
   Future<void> _confirmClear(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
-        title: Text(
-          'Clear all favourites?',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w800,
-            color: AppColors.ink,
+      builder: (context) {
+        final maxWidth = Responsive.isTablet(context) ? 360.0 : 320.0;
+        return Dialog(
+          backgroundColor: AppColors.surfaceElevated,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-        content: Text(
-          'This removes every saved exercise from this device.',
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: AppColors.textSecondary,
-            height: 1.4,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Clear all favourites?',
+                    style: TextStyle(
+                      fontSize: Responsive.s(context, 18.sp, 17),
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'This removes every saved exercise from this device.',
+                    style: TextStyle(
+                      fontSize: Responsive.s(context, 14.sp, 13),
+                      color: AppColors.textSecondary,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontSize: Responsive.s(context, 14.sp, 13),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                        ),
+                        child: Text(
+                          'Clear all',
+                          style: TextStyle(
+                            fontSize: Responsive.s(context, 14.sp, 13),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Clear all'),
-          ),
-        ],
-      ),
+        );
+      },
     );
     if (confirmed == true) {
       await controller.clearAll();
@@ -57,15 +95,18 @@ class FavoritesScreen extends GetView<FavoritesController> {
     final columns = Responsive.gridCrossAxisCount(context);
     final pad = Responsive.horizontalPadding(context);
 
+    final toolbarHeight = Responsive.s(context, kToolbarHeight, 44);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        toolbarHeight: toolbarHeight,
         backgroundColor: AppColors.coral,
         foregroundColor: AppColors.textOnCoral,
         title: Text(
           'Favourites',
           style: TextStyle(
-            fontSize: 20.sp,
+            fontSize: Responsive.s(context, 18.sp, 17),
             fontWeight: FontWeight.w800,
             color: AppColors.textOnCoral,
           ),
@@ -77,8 +118,14 @@ class FavoritesScreen extends GetView<FavoritesController> {
             }
             return IconButton(
               tooltip: 'Clear all',
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(8),
+              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               onPressed: () => _confirmClear(context),
-              icon: Icon(Icons.delete_outline_rounded, size: 22.sp),
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                size: Responsive.s(context, 20.sp, 18),
+              ),
             );
           }),
         ],
@@ -131,10 +178,11 @@ class FavoritesScreen extends GetView<FavoritesController> {
                   : GridView.builder(
                       padding: EdgeInsets.fromLTRB(pad, 16.h, pad, 24.h),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: columns.clamp(2, 4),
-                        crossAxisSpacing: 12.w,
-                        mainAxisSpacing: 12.h,
-                        childAspectRatio: 0.78,
+                        crossAxisCount: columns.clamp(2, 5),
+                        crossAxisSpacing: 14,
+                        mainAxisSpacing: 14,
+                        childAspectRatio:
+                            Responsive.exerciseGridAspectRatio(context),
                       ),
                       itemCount: controller.favoriteExercises.length,
                       itemBuilder: (context, index) {
