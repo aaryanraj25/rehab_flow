@@ -100,77 +100,88 @@ void main() {
       expect(controller.filteredExercises, isEmpty);
     });
 
-    test('difficulty and search AND with category; muscle ORs with category',
-        () {
-      final total = controller.filteredExercises.length;
-
+    test('single category facet narrows results', () {
       controller.selectCategory('Strength');
-      controller.selectDifficulty('Beginner');
-      final afterFacets = controller.filteredExercises;
-      expect(afterFacets, isNotEmpty);
-      expect(afterFacets.length, lessThanOrEqualTo(total));
+      expect(controller.selectedCategories, equals({'Strength'}));
+      expect(controller.filteredExercises, isNotEmpty);
       expect(
-        afterFacets.every(
-          (e) => e.category == 'Strength' && e.difficulty == 'Beginner',
-        ),
+        controller.filteredExercises.every((e) => e.category == 'Strength'),
         isTrue,
       );
-
-      final muscle = afterFacets.first.targetMuscle;
-      controller.selectMuscle(muscle);
-
-      // Category + muscle → show if Strength OR that muscle (still Beginner).
-      expect(
-        controller.filteredExercises.every(
-          (e) =>
-              e.difficulty == 'Beginner' &&
-              (e.category == 'Strength' || e.targetMuscle == muscle),
-        ),
-        isTrue,
-      );
-      expect(
-        controller.filteredExercises.any((e) => e.category == 'Strength'),
-        isTrue,
-      );
-
-      controller.onSearchChanged(afterFacets.first.name.substring(0, 3));
-      expect(
-        controller.filteredExercises.every(
-          (e) => e.name.toLowerCase().contains(
-                afterFacets.first.name.substring(0, 3).toLowerCase(),
-              ),
-        ),
-        isTrue,
-      );
-
-      controller.clearFilters();
-      expect(controller.filteredExercises.length, total);
-      expect(controller.hasActiveFilters, isFalse);
     });
 
-    test('single category + single muscle still ORs together', () {
+    test('category AND muscle intersect (regression for facet OR bug)', () {
+      // Pick a Strength exercise's muscle, then assert intersection.
+      final strength = controller.allExercises
+          .where((e) => e.category == 'Strength')
+          .toList();
+      expect(strength, isNotEmpty);
+      final muscle = strength.first.targetMuscle;
+
       controller.selectCategory('Strength');
-      final strengthCount = controller.filteredExercises.length;
+      controller.selectMuscle(muscle);
 
-      // Pick a muscle that exists on a non-Strength exercise when possible.
-      final otherMuscle = controller.allExercises
-          .where((e) => e.category != 'Strength')
-          .map((e) => e.targetMuscle)
-          .toSet()
-          .first;
-
-      controller.selectMuscle(otherMuscle);
-      final combined = controller.filteredExercises;
-
+      final filtered = controller.filteredExercises;
+      expect(filtered, isNotEmpty);
       expect(
-        combined.every(
-          (e) =>
-              e.category == 'Strength' || e.targetMuscle == otherMuscle,
+        filtered.every(
+          (e) => e.category == 'Strength' && e.targetMuscle == muscle,
         ),
         isTrue,
       );
-      // Broader than Strength-only because muscle facet adds matches.
-      expect(combined.length, greaterThanOrEqualTo(strengthCount));
+
+      // Non-overlapping pair → empty (must not OR facets together).
+      final foreignMuscles = controller.allExercises
+          .where((e) => e.category != 'Strength')
+          .map((e) => e.targetMuscle)
+          .where((m) => strength.every((e) => e.targetMuscle != m))
+          .toSet()
+          .toList();
+
+      if (foreignMuscles.isNotEmpty) {
+        final foreignMuscle = foreignMuscles.first;
+        controller.clearFacetFilters();
+        controller.selectCategory('Strength');
+        controller.selectMuscle(foreignMuscle);
+        expect(controller.filteredExercises, isEmpty);
+        expect(controller.selectedCategories, equals({'Strength'}));
+        expect(controller.selectedMuscles, equals({foreignMuscle}));
+      }
+    });
+
+    test('search + category + difficulty + muscle all AND together', () {
+      final seed = controller.allExercises.firstWhere(
+        (e) => e.category == 'Strength',
+        orElse: () => controller.allExercises.first,
+      );
+
+      controller.selectCategory(seed.category);
+      controller.selectDifficulty(seed.difficulty);
+      controller.selectMuscle(seed.targetMuscle);
+      controller.onSearchChanged(seed.name.substring(0, 3));
+
+      final filtered = controller.filteredExercises;
+      expect(filtered, isNotEmpty);
+      expect(
+        filtered.every(
+          (e) =>
+              e.category == seed.category &&
+              e.difficulty == seed.difficulty &&
+              e.targetMuscle == seed.targetMuscle &&
+              e.name.toLowerCase().contains(
+                    seed.name.substring(0, 3).toLowerCase(),
+                  ),
+        ),
+        isTrue,
+      );
+    });
+
+    test('impossible facet combination yields empty results', () {
+      controller.selectCategory('Strength');
+      controller.selectDifficulty('Beginner');
+      controller.onSearchChanged('zzzz-no-match-xyz');
+      expect(controller.filteredExercises, isEmpty);
+      expect(controller.hasActiveFilters, isTrue);
     });
 
     test('multiple categories use OR within the category facet', () {
@@ -204,7 +215,6 @@ void main() {
         isTrue,
       );
 
-      // Deselect one — remaining muscle still filters.
       controller.selectMuscle(muscles[0]);
       expect(controller.selectedMuscles, equals({muscles[1]}));
       expect(

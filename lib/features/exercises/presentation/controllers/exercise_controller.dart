@@ -76,8 +76,8 @@ class ExerciseController extends GetxController {
       (selectedDifficulty.value != null ? 1 : 0) +
       selectedMuscles.length;
 
-  /// Search by name + difficulty AND (category OR muscle) filters.
-  /// Multiple values within category/muscle use OR; difficulty stays single-select.
+  /// Facets combine with AND across search/category/difficulty/muscle.
+  /// Multi-select within category or muscle uses OR for that facet only.
   List<ExerciseModel> get filteredExercises {
     final query = searchQuery.value.trim().toLowerCase();
     final categories = selectedCategories.toSet();
@@ -86,28 +86,17 @@ class ExerciseController extends GetxController {
     return allExercises.where((exercise) {
       final matchesSearch =
           query.isEmpty || exercise.name.toLowerCase().contains(query);
+      final matchesCategory =
+          categories.isEmpty || categories.contains(exercise.category);
       final matchesDifficulty = selectedDifficulty.value == null ||
           exercise.difficulty == selectedDifficulty.value;
+      final matchesMuscle =
+          muscles.isEmpty || muscles.contains(exercise.targetMuscle);
 
-      final hasCategoryFilter = categories.isNotEmpty;
-      final hasMuscleFilter = muscles.isNotEmpty;
-      final matchesCategory = categories.contains(exercise.category);
-      final matchesMuscle = muscles.contains(exercise.targetMuscle);
-
-      // Category and target muscle align with OR: matching either facet is enough
-      // (same rule for one selection or many).
-      final bool matchesCategoryOrMuscle;
-      if (!hasCategoryFilter && !hasMuscleFilter) {
-        matchesCategoryOrMuscle = true;
-      } else if (hasCategoryFilter && hasMuscleFilter) {
-        matchesCategoryOrMuscle = matchesCategory || matchesMuscle;
-      } else if (hasCategoryFilter) {
-        matchesCategoryOrMuscle = matchesCategory;
-      } else {
-        matchesCategoryOrMuscle = matchesMuscle;
-      }
-
-      return matchesSearch && matchesDifficulty && matchesCategoryOrMuscle;
+      return matchesSearch &&
+          matchesCategory &&
+          matchesDifficulty &&
+          matchesMuscle;
     }).toList();
   }
 
