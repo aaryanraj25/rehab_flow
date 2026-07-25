@@ -66,14 +66,16 @@ flutter build apk --release
 |--------|----------------|
 | `presentation/` | Screens, controllers, feature widgets |
 | `data/` | Models + repositories (auth, exercises, favourites) |
-| `core/` | Theme, routes, bindings, storage, shared state widgets |
+| `core/` | Theme, routes, bindings, `di/`, storage, shared state widgets |
 | `network/` | Dio client + connectivity |
 | `utils/` | Validators + responsive / ScreenUtil helpers |
 
 Repositories own persistence and networking behind abstract contracts
 (`AuthRepository`, `ExerciseRepository`, `FavoritesRepository`) with Hive-backed
-`*Impl` classes. Controllers stay thin and reactive. Shared UI states
-(loading / empty / error / offline) live in reusable widgets.
+`*Impl` classes. `ServiceLocator.registerCore()` constructs them with
+**constructor injection**, then registers singletons for presentation lookup.
+Controllers stay thin and reactive. Shared UI states (loading / empty /
+offline vs API error / retry) live in reusable widgets.
 
 ---
 
@@ -85,10 +87,11 @@ lib/
   core/
     bindings/
     constants/
+    di/               # ServiceLocator (constructor DI + GetX registration)
     routes/
     storage/
     theme/
-    widgets/          # loading, empty, error, offline banner
+    widgets/          # loading, empty, offline/API error, retry
   network/
   utils/              # validators, responsive + ScreenUtil
   features/
@@ -109,12 +112,12 @@ assets/
 
 ## State management approach
 
-**GetX** was chosen because it covers the assignment needs in one cohesive toolkit:
+**GetX** covers presentation needs; data deps are constructor-injected:
 
 1. **Reactive UI** via `.obs` / `Obx` for lists, filters, favourites, and load states  
-2. **DI** through `Get.put` / bindings (controllers + repositories)  
+2. **Constructor DI** in `ServiceLocator` / bindings — repositories take storage/API/network via constructors; GetX only stores the resulting singletons  
 3. **Routing** with `GetMaterialApp` + `GetPage` (splash → login → exercises → detail → favourites)  
-4. Low boilerplate relative to Bloc for a medium-sized assignment app, while still keeping feature folders and repository boundaries
+4. Low boilerplate relative to Bloc, while keeping feature folders and repository boundaries
 
 Controllers:
 
@@ -148,8 +151,8 @@ Controllers:
 4. **Filters** — category + difficulty + target muscle (combined with AND)  
 5. **Details** — large image, description, instructions, equipment, related exercises  
 6. **Favourites** — add/remove + local persistence + favourites screen  
-7. **Offline** — caches exercise list, details, and favourite ids; serves cache/asset when offline  
-8. **Error handling** — loading, empty, API/cache failure, offline banner, retry  
+7. **Offline** — caches exercise list, details, and favourite **snapshots**; serves Hive/API/asset when offline  
+8. **Error handling** — loading, empty, distinct offline vs API failure screens, retry (pull-to-refresh hard-fails into `AppErrorView`)  
 9. **Responsive UI** — ScreenUtil + breakpoints for phone list vs tablet grids / wide login  
 
 ---
@@ -157,19 +160,20 @@ Controllers:
 ## Assumptions
 
 - Mock auth is intentional (assignment: no real backend required).  
-- Bundled `assets/data/exercises.json` is the primary content source for reliable demos; a public GitHub raw URL can refresh on pull-to-refresh when online.  
-- To demo the hard API-failure UI, flip `AppConstants.debugForceApiHardFailure` to `true` (skips cache/asset soft-fail and shows `AppErrorView`). Keep it `false` for normal use.
-- Images come from public Unsplash URLs; offline still shows text/data (images may fall back to placeholders).  
-- Favourites store exercise **ids**; resolving titles/images uses the local Hive exercise cache/asset.  
-- Local persistence uses **Hive** (separate boxes for auth, exercises, favourites, and the exercise-id index) with generated TypeAdapters for `UserModel` and `ExerciseModel`.
+- Online loads are **REST-first** (`exercisesApiUrl`); Hive cache then bundled `assets/data/exercises.json` are fallbacks if the first load’s API call fails.  
+- **Pull-to-refresh / Retry** re-hits the API with `forceRefresh: true`. If that fails, the app shows the hard `AppErrorView` (not a silent soft-fail).  
+- Flip `AppConstants.debugForceApiHardFailure` to `true` to force `AppErrorView` on every load without cutting the network.  
+- Images come from public Unsplash URLs; offline still shows text/data (images may fall back to placeholders after prefetch).  
+- Favourites store full **`ExerciseModel` snapshots** in Hive (not ids alone), so the favourites screen works offline even if the main exercise cache changes.  
+- Local persistence uses **Hive** (auth, exercises, favourites snapshots, exercise-id index) with TypeAdapters for `UserModel` and `ExerciseModel`.
 
 ---
 
 ## Trade-offs
 
-- **GetX vs Bloc/Riverpod** — faster delivery and fewer files; stricter compile-time DI is traded for convention-based GetX registration.  
-- **Hive vs SharedPreferences/SQLite** — Hive gives typed object adapters and better scaling for structured exercise caches than SharedPreferences, while staying lighter than SQLite/Isar for this dataset size.  
-- **Asset-first data** — guarantees offline/demo reliability; remote API is secondary refresh, not a hard dependency.  
+- **GetX for presentation + constructor DI for data** — repositories/controllers are wired in `ServiceLocator` / bindings with constructor injection; GetX holds singletons for `GetView` lookup (not a free-for-all service locator in the data layer).  
+- **Hive vs SharedPreferences/SQLite** — typed adapters and better scaling for structured caches than SharedPreferences; lighter than SQLite/Isar for this dataset.  
+- **Initial-load soft fallback** — if the first online API call fails, cache/asset still populate the list with a refresh-failed banner so demos aren’t blocked; explicit refresh/retry uses the hard error screen.  
 - **iOS `objective_c` pin** — temporary `dependency_overrides` to avoid a known plugin crash on newer `objective_c` builds.
 
 ---

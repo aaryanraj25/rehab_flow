@@ -10,7 +10,7 @@ import '../../../../network/api_client.dart';
 import '../models/exercise_model.dart';
 import '../exercise_image_cache.dart';
 
-/// Contract for loading / caching exercises (asset, API, Hive).
+/// Contract for loading / caching exercises (API, Hive, asset fallback).
 abstract class ExerciseRepository {
   Future<ExerciseFetchResult> getExercises({bool forceRefresh = false});
 
@@ -22,6 +22,10 @@ abstract class ExerciseRepository {
 }
 
 /// Hive + Dio backed [ExerciseRepository] implementation.
+///
+/// Online path is **REST-first**. Local Hive cache and the bundled asset are
+/// fallbacks when the network fails (unless [forceRefresh] is true — then API
+/// failures surface as hard errors for [AppErrorView] + retry).
 class ExerciseRepositoryImpl implements ExerciseRepository {
   ExerciseRepositoryImpl({
     required LocalStorageService storage,
@@ -39,8 +43,21 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
 
   @override
   Future<ExerciseFetchResult> getExercises({bool forceRefresh = false}) async {
-    // Debug hard-fail path: skip soft-fail so AppErrorView is demoable.
     if (AppConstants.debugForceApiHardFailure) {
+      throw const NetworkException(
+        'Debug hard-fail is on — showing the API error screen.',
+      );
+    }
+
+    final online = await _networkInfo.isConnected;
+    final cached = _readCachedExercises();
+
+    if (!online) {
+      return _offlineResult(cached);
+    }
+
+    // Online: always try the REST feed first.
+    try {
       final remote = await _fetchFromApi();
       await _persistAll(remote);
       unawaited(ExerciseImageCache.prefetchExercises(remote));
@@ -49,86 +66,61 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
         fromCache: false,
         isOffline: false,
       );
-    }
+    } catch (e) {
+      final mapped = ExceptionMapper.from(e);
 
-    final online = await _networkInfo.isConnected;
-    final cached = _readCachedExercises();
+      // Pull-to-refresh / retry: hard-fail so AppErrorView + Retry appear.
+      if (forceRefresh) {
+        throw mapped;
+      }
 
-    // Offline: serve local cache first, then bundled asset.
-    if (!online) {
+      // Initial load: soft-fall back to Hive, then bundled asset.
       if (cached.isNotEmpty) {
+        unawaited(ExerciseImageCache.prefetchExercises(cached));
         return ExerciseFetchResult(
           exercises: cached,
           fromCache: true,
-          isOffline: true,
+          isOffline: false,
+          refreshFailed: true,
         );
       }
+
       try {
         final asset = await _loadFromAsset();
-        if (asset.isEmpty) {
-          throw const NetworkException(
-            'No internet connection and no saved exercises to show.',
-          );
-        }
         await _persistAll(asset);
+        unawaited(ExerciseImageCache.prefetchExercises(asset));
         return ExerciseFetchResult(
           exercises: asset,
           fromCache: true,
-          isOffline: true,
-        );
-      } catch (e) {
-        throw ExceptionMapper.from(e);
-      }
-    }
-
-    // Pull-to-refresh can try the remote feed; otherwise prefer the bundled
-    // dataset so local content updates are not masked by stale GitHub JSON.
-    if (forceRefresh) {
-      try {
-        final remote = await _fetchFromApi();
-        await _persistAll(remote);
-        unawaited(ExerciseImageCache.prefetchExercises(remote));
-        return ExerciseFetchResult(
-          exercises: remote,
-          fromCache: false,
           isOffline: false,
+          refreshFailed: true,
         );
       } catch (_) {
-        // Soft-fail: keep showing local data when a refresh fails.
-        if (cached.isNotEmpty) {
-          unawaited(ExerciseImageCache.prefetchExercises(cached));
-          return ExerciseFetchResult(
-            exercises: cached,
-            fromCache: true,
-            isOffline: false,
-            refreshFailed: true,
-          );
-        }
-        try {
-          final asset = await _loadFromAsset();
-          await _persistAll(asset);
-          unawaited(ExerciseImageCache.prefetchExercises(asset));
-          return ExerciseFetchResult(
-            exercises: asset,
-            fromCache: true,
-            isOffline: false,
-            refreshFailed: true,
-          );
-        } catch (e) {
-          throw ExceptionMapper.from(e);
-        }
+        throw mapped;
       }
     }
+  }
 
+  Future<ExerciseFetchResult> _offlineResult(List<ExerciseModel> cached) async {
+    if (cached.isNotEmpty) {
+      return ExerciseFetchResult(
+        exercises: cached,
+        fromCache: true,
+        isOffline: true,
+      );
+    }
     try {
       final asset = await _loadFromAsset();
+      if (asset.isEmpty) {
+        throw const NetworkException(
+          'No internet connection and no saved exercises to show.',
+        );
+      }
       await _persistAll(asset);
-      // Warm disk cache while online so detail/list images work offline.
-      unawaited(ExerciseImageCache.prefetchExercises(asset));
       return ExerciseFetchResult(
         exercises: asset,
         fromCache: true,
-        isOffline: false,
+        isOffline: true,
       );
     } catch (e) {
       throw ExceptionMapper.from(e);
@@ -141,6 +133,9 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   Future<ExerciseModel?> getExerciseById(String id) async {
     final cached = _storage.getExerciseDetail(id);
     if (cached != null) return cached;
+
+    final favorite = _storage.getFavoriteExercise(id);
+    if (favorite != null) return favorite;
 
     final result = await getExercises();
     try {
@@ -169,19 +164,13 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   }
 
   Future<void> _persistAll(List<ExerciseModel> exercises) {
-    // saveExercises writes both the ordered index and per-id detail entries.
     return _storage.saveExercises(exercises);
   }
 
   Future<List<ExerciseModel>> _fetchFromApi() async {
-    if (AppConstants.debugForceApiHardFailure) {
-      throw const NetworkException();
-    }
-
     try {
       final response = await _apiClient.get(AppConstants.exercisesApiUrl);
-      final data = response.data;
-      final list = _parseListPayload(data);
+      final list = _parseListPayload(response.data);
       if (list.isEmpty) {
         throw const ServerException('No exercises returned from the server.');
       }

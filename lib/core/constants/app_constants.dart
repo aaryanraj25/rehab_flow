@@ -18,13 +18,13 @@ class AppConstants {
   /// Hive box names (one box per concern for isolated clear/reset).
   static const String hiveAuthBox = 'auth_box';
   static const String hiveExercisesBox = 'exercises_box';
-  static const String hiveFavoritesBox = 'favorites_box';
+  /// Typed favourite snapshots ([ExerciseModel] per id).
+  static const String hiveFavoritesBox = 'favorites_exercises_box';
   static const String hiveExerciseIndexBox = 'exercise_index_box';
 
   /// Keys within the Hive boxes.
   static const String storageAuthKey = 'auth_session';
   static const String storageExercisesKey = 'cached_exercises_v2';
-  static const String storageFavoritesKey = 'favorite_exercise_ids';
 
   static const Duration apiTimeout = Duration(seconds: 12);
   static const int passwordMinLength = 6;
@@ -32,8 +32,8 @@ class AppConstants {
   static const String demoEmailHint = 'demo@rehabflow.app';
   static const String demoPasswordHint = 'rehab123';
 
-  /// Debug-only: when `true`, exercise loads skip cache/asset soft-fail and
-  /// surface a hard API-failure via [AppErrorView]. Keep `false` for normal
-  /// demos and release builds. Flip locally when you need to demo the error UI.
+  /// Debug-only: force the hard [AppErrorView] path on every exercise load
+  /// (skips REST/cache/asset). Keep `false` for normal use; flip to demo the
+  /// API-failure screen without yanking the network.
   static const bool debugForceApiHardFailure = false;
 }

@@ -21,21 +21,35 @@ class FavoritesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    favoriteIds.addAll(_favoritesRepository.getFavoriteIds());
-    loadFavoriteExercises();
+    _hydrateFromStorage();
+  }
+
+  void _hydrateFromStorage() {
+    favoriteIds
+      ..clear()
+      ..addAll(_favoritesRepository.getFavoriteIds());
+    favoriteExercises.assignAll(_favoritesRepository.getFavoriteExercises());
   }
 
   bool isFavorite(String exerciseId) => favoriteIds.contains(exerciseId);
 
+  /// Resolves a snapshot (cache / API / asset) then persists the full model.
   Future<void> toggleFavorite(String exerciseId) async {
-    final nowFavorite = await _favoritesRepository.toggleFavorite(exerciseId);
-    if (nowFavorite) {
-      favoriteIds.add(exerciseId);
-    } else {
+    if (isFavorite(exerciseId)) {
+      await _favoritesRepository.removeFavorite(exerciseId);
       favoriteIds.remove(exerciseId);
+      favoriteExercises.removeWhere((e) => e.id == exerciseId);
+      favoriteIds.refresh();
+      return;
     }
+
+    final exercise = await _exerciseRepository.getExerciseById(exerciseId);
+    if (exercise == null) return;
+
+    await _favoritesRepository.addFavorite(exercise);
+    favoriteIds.add(exerciseId);
+    favoriteExercises.add(exercise);
     favoriteIds.refresh();
-    await loadFavoriteExercises();
   }
 
   Future<void> clearAll() async {
@@ -47,17 +61,7 @@ class FavoritesController extends GetxController {
   Future<void> loadFavoriteExercises() async {
     isLoading.value = true;
     try {
-      final ids = favoriteIds.toList();
-      if (ids.isEmpty) {
-        favoriteExercises.clear();
-        return;
-      }
-
-      final result = await _exerciseRepository.getExercises();
-      final byId = {for (final e in result.exercises) e.id: e};
-      favoriteExercises.assignAll(
-        ids.map((id) => byId[id]).whereType<ExerciseModel>(),
-      );
+      _hydrateFromStorage();
     } finally {
       isLoading.value = false;
     }

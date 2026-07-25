@@ -1,21 +1,25 @@
 import '../../../../core/storage/local_storage_service.dart';
+import '../../../exercises/data/models/exercise_model.dart';
 
-/// Contract for favourite exercise id persistence.
+/// Contract for favourite exercise persistence (full model snapshots).
 abstract class FavoritesRepository {
   List<String> getFavoriteIds();
 
+  List<ExerciseModel> getFavoriteExercises();
+
   bool isFavorite(String exerciseId);
 
-  Future<void> addFavorite(String exerciseId);
+  Future<void> addFavorite(ExerciseModel exercise);
 
   Future<void> removeFavorite(String exerciseId);
 
-  Future<bool> toggleFavorite(String exerciseId);
+  /// Toggles by [exercise.id]. Pass the full model so a snapshot is stored.
+  Future<bool> toggleFavorite(ExerciseModel exercise);
 
   Future<void> clear();
 }
 
-/// Hive-backed [FavoritesRepository] implementation.
+/// Hive-backed [FavoritesRepository] — stores [ExerciseModel] snapshots offline.
 class FavoritesRepositoryImpl implements FavoritesRepository {
   FavoritesRepositoryImpl(this._storage);
 
@@ -26,36 +30,30 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       List<String>.from(_storage.getFavoriteIds());
 
   @override
-  bool isFavorite(String exerciseId) {
-    return getFavoriteIds().contains(exerciseId);
-  }
+  List<ExerciseModel> getFavoriteExercises() =>
+      List<ExerciseModel>.from(_storage.getFavoriteExercises());
 
   @override
-  Future<void> addFavorite(String exerciseId) async {
-    final ids = getFavoriteIds();
-    if (ids.contains(exerciseId)) return;
-    ids.add(exerciseId);
-    await _storage.setFavoriteIds(ids);
-  }
+  bool isFavorite(String exerciseId) => _storage.isFavorite(exerciseId);
 
   @override
-  Future<void> removeFavorite(String exerciseId) async {
-    final ids = getFavoriteIds()..remove(exerciseId);
-    await _storage.setFavoriteIds(ids);
-  }
+  Future<void> addFavorite(ExerciseModel exercise) =>
+      _storage.saveFavorite(exercise);
 
   @override
-  Future<bool> toggleFavorite(String exerciseId) async {
-    if (isFavorite(exerciseId)) {
-      await removeFavorite(exerciseId);
+  Future<void> removeFavorite(String exerciseId) =>
+      _storage.removeFavorite(exerciseId);
+
+  @override
+  Future<bool> toggleFavorite(ExerciseModel exercise) async {
+    if (isFavorite(exercise.id)) {
+      await removeFavorite(exercise.id);
       return false;
     }
-    await addFavorite(exerciseId);
+    await addFavorite(exercise);
     return true;
   }
 
   @override
-  Future<void> clear() async {
-    await _storage.setFavoriteIds([]);
-  }
+  Future<void> clear() => _storage.clearFavorites();
 }

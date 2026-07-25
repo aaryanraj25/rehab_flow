@@ -6,14 +6,13 @@ import '../constants/app_constants.dart';
 
 /// Hive-backed local storage for session, exercise cache, and favourites.
 ///
-/// Uses typed [HiveObject] adapters for auth + exercises. Favourites and the
-/// ordered exercise-id index are plain `List` values (Hive supports those
-/// natively without a custom adapter).
+/// Uses typed [HiveObject] adapters for auth, exercises, and favourite
+/// snapshots. The ordered exercise-id index is a plain `List` (native Hive).
 class LocalStorageService {
   LocalStorageService({
     required Box<UserModel> authBox,
     required Box<ExerciseModel> exercisesBox,
-    required Box<List> favoritesBox,
+    required Box<ExerciseModel> favoritesBox,
     required Box<List> exerciseIndexBox,
   })  : _authBox = authBox,
         _exercisesBox = exercisesBox,
@@ -22,7 +21,7 @@ class LocalStorageService {
 
   final Box<UserModel> _authBox;
   final Box<ExerciseModel> _exercisesBox;
-  final Box<List> _favoritesBox;
+  final Box<ExerciseModel> _favoritesBox;
   final Box<List> _exerciseIndexBox;
 
   // ── Auth session ──────────────────────────────────────────────────────────
@@ -41,7 +40,6 @@ class LocalStorageService {
   List<ExerciseModel> getCachedExercises() {
     final ids = _readListIds();
     if (ids.isEmpty) {
-      // Fallback if index was never written but details exist.
       return _exercisesBox.values.toList();
     }
     final restored = <ExerciseModel>[];
@@ -83,34 +81,42 @@ class LocalStorageService {
     return raw.map((e) => e.toString()).toList();
   }
 
-  // ── Favourites ────────────────────────────────────────────────────────────
+  // ── Favourites (full ExerciseModel snapshots) ─────────────────────────────
 
-  List<String> getFavoriteIds() {
-    final raw = _favoritesBox.get(AppConstants.storageFavoritesKey);
-    if (raw == null) return const [];
-    return raw.map((e) => e.toString()).toList();
-  }
+  List<String> getFavoriteIds() =>
+      _favoritesBox.keys.whereType<String>().toList();
 
-  Future<void> setFavoriteIds(List<String> ids) =>
-      _favoritesBox.put(AppConstants.storageFavoritesKey, List<String>.from(ids));
+  List<ExerciseModel> getFavoriteExercises() =>
+      getFavoriteIds()
+          .map(_favoritesBox.get)
+          .whereType<ExerciseModel>()
+          .toList();
+
+  ExerciseModel? getFavoriteExercise(String id) => _favoritesBox.get(id);
+
+  bool isFavorite(String exerciseId) => _favoritesBox.containsKey(exerciseId);
+
+  Future<void> saveFavorite(ExerciseModel exercise) =>
+      _favoritesBox.put(exercise.id, exercise);
+
+  Future<void> removeFavorite(String exerciseId) =>
+      _favoritesBox.delete(exerciseId);
+
+  Future<void> clearFavorites() => _favoritesBox.clear();
 
   // ── Bootstrap ─────────────────────────────────────────────────────────────
 
-  /// Opens Hive boxes, registers adapters, and returns a ready service.
   static Future<LocalStorageService> init() async {
     await Hive.initFlutter();
     return _open();
   }
 
-  /// Test helper — Hive on a filesystem path (no Flutter plugin binding).
   static Future<LocalStorageService> initForTest(String path) async {
     Hive.init(path);
     return _open(clearExisting: true);
   }
 
-  /// Closes all open boxes — call from test tearDown before deleting the temp dir.
   static Future<void> closeForTest() => Hive.close();
-
 
   static Future<LocalStorageService> _open({bool clearExisting = false}) async {
     if (!Hive.isAdapterRegistered(0)) {
@@ -124,7 +130,7 @@ class LocalStorageService {
     final exercisesBox =
         await Hive.openBox<ExerciseModel>(AppConstants.hiveExercisesBox);
     final favoritesBox =
-        await Hive.openBox<List>(AppConstants.hiveFavoritesBox);
+        await Hive.openBox<ExerciseModel>(AppConstants.hiveFavoritesBox);
     final exerciseIndexBox =
         await Hive.openBox<List>(AppConstants.hiveExerciseIndexBox);
 

@@ -50,10 +50,16 @@ void main() {
       expect(harness.storage.getExerciseDetail('1'), isNull);
     });
 
-    test('favourite ids round-trip', () async {
-      await harness.storage.setFavoriteIds(['1', '5']);
+    test('favourite snapshots round-trip', () async {
+      await harness.storage.saveFavorite(
+        buildExercise(id: '1', name: 'A'),
+      );
+      await harness.storage.saveFavorite(
+        buildExercise(id: '5', name: 'B'),
+      );
       expect(harness.storage.getFavoriteIds(), ['1', '5']);
-      await harness.storage.setFavoriteIds([]);
+      expect(harness.storage.getFavoriteExercise('5')?.name, 'B');
+      await harness.storage.clearFavorites();
       expect(harness.storage.getFavoriteIds(), isEmpty);
     });
   });
