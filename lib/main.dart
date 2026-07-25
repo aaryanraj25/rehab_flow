@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/constants/app_constants.dart';
 import 'core/storage/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/data/repositories/auth_repository.dart';
 import 'network/api_client.dart';
 
 Future<void> main() async {
@@ -15,9 +16,11 @@ Future<void> main() async {
 
 Future<void> _registerCoreServices() async {
   final prefs = await SharedPreferences.getInstance();
-  Get.put(LocalStorageService(prefs), permanent: true);
+  final storage = LocalStorageService(prefs);
+  Get.put(storage, permanent: true);
   Get.put(NetworkInfo(), permanent: true);
   Get.put(ApiClient(), permanent: true);
+  Get.put(AuthRepository(storage), permanent: true);
 }
 
 class RehabFlowApp extends StatelessWidget {
