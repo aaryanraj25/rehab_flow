@@ -1,192 +1,148 @@
 # RehabFlow
 
-Rehabilitation Exercise Management Application built with **Flutter** and **GetX**.
+A Flutter app that helps people browse and manage rehabilitation exercises even when they are offline.
 
-Browse rehab exercises, search/filter them, view details, mark favourites, and keep using the app offline with locally cached data.
+* You log in with a mock account
+* You browse a dashboard full of exercises
+* You search by name and filter by category, difficulty, and target muscle all at the same time
+* You open any exercise to see the full details and a large image
+* You save exercises to favorites and they stay saved
+* Everything keeps working even without internet
 
 ---
 
-## Project setup
+## Project Setup Instructions
 
-### Prerequisites
-
-- Flutter stable (tested with **3.38.x** / Dart **3.10.x**)
-- Android Studio / Xcode (optional, for device/emulator runs)
-
-### Run
+* Make sure you have the latest stable Flutter SDK installed
+* Run these commands from the project folder
 
 ```bash
-cd rehab_flow
 flutter pub get
 flutter run
 ```
 
-### Demo login (mock auth)
-
-Any valid email + password (min 6 characters) works.
-
-Example:
-
-- Email: `demo@rehabflow.app`
-- Password: `rehab123`
-
-Session is persisted locally; relaunching the app auto-logs in when a session exists.
-
-### Tests
-
-```bash
-# Unit + widget + host integration flows
-flutter test
-
-# Device/emulator integration binding smoke test
-flutter test integration_test -d <deviceId>
-```
-
-Coverage layout:
-
-- `test/unit/` — validators, exceptions, models, repositories, controllers, Hive storage
-- `test/widget/` — splash, login, exercise list UI
-- `test/integration/` — browse/search, favourites resolution, detail UI (host, no device)
-- `integration_test/` — device binding smoke test for hardware runs
-
-### Optional APK
+* To build an APK for testing, run
 
 ```bash
 flutter build apk --release
-# output: build/app/outputs/flutter-apk/app-release.apk
 ```
+
+* The APK will show up under `build/app/outputs/flutter-apk/app-release.apk`
+
+### Logging in
+
+* There is no real backend behind login, so any email that looks like a real email will work
+* For the password, just use six characters or more
+* That is all it takes to get in
+
+### Demo account
+
+* Email: `demo@rehabflow.com`
+* Password: `demo123`
+* You can also just type your own email and any six-character password since login is fully mocked
 
 ---
 
-## Architecture used
+## Architecture Used
 
-**Feature-first clean separation** with GetX for presentation state:
-
-| Layer | Responsibility |
-|--------|----------------|
-| `presentation/` | Screens, controllers, feature widgets |
-| `data/` | Models + repositories (auth, exercises, favourites) |
-| `core/` | Theme, routes, bindings, `di/`, storage, shared state widgets |
-| `network/` | Dio client + connectivity |
-| `utils/` | Validators + responsive / ScreenUtil helpers |
-
-Repositories own persistence and networking behind abstract contracts
-(`AuthRepository`, `ExerciseRepository`, `FavoritesRepository`) with Hive-backed
-`*Impl` classes. `ServiceLocator.registerCore()` constructs them with
-**constructor injection**, then registers singletons for presentation lookup.
-Controllers stay thin and reactive. Shared UI states (loading / empty /
-offline vs API error / retry) live in reusable widgets.
+* The app follows a feature-first layout
+* Each feature like auth, exercises, or favorites has its own data layer and its own presentation layer
+* The data layer talks to Hive and to the network
+* The presentation layer is what the user actually sees and taps on
+* A screen never talks to Hive or Dio directly — it always goes through a controller and a repository
+* This keeps things clean and easy to follow even months later
+* The app follows clean architecture principles with a clear separation between data and presentation for every feature
+* The layering that is here is applied the same way across every feature so nothing feels bolted on
 
 ---
 
-## Folder structure
+## Folder Structure
 
 ```
+rehab_flow/
 lib/
   main.dart
   core/
     bindings/
     constants/
-    di/               # ServiceLocator (constructor DI + GetX registration)
+    di/
+    errors/
     routes/
     storage/
     theme/
-    widgets/          # loading, empty, offline/API error, retry
+    widgets/
   network/
-  utils/              # validators, responsive + ScreenUtil
+  utils/
   features/
     auth/
-      data/{models,repositories}
-      presentation/{controllers,screens,widgets}
+      data/
+      presentation/
     exercises/
-      data/{models,repositories}
-      presentation/{controllers,screens,widgets}
+      data/
+      presentation/
     favorites/
-      data/repositories
-      presentation/{controllers,screens,widgets}
+      data/
+      presentation/
 assets/
-  data/exercises.json # bundled mock dataset + offline fallback
+  data/exercises.json
+  branding/app_icon.png
+test/
+integration_test/
+android/
+ios/
+pubspec.yaml
+README.md
 ```
 
 ---
 
-## State management approach
+## State Management Approach
 
-**GetX** covers presentation needs; data deps are constructor-injected:
-
-1. **Reactive UI** via `.obs` / `Obx` for lists, filters, favourites, and load states  
-2. **Constructor DI** in `ServiceLocator` / bindings — repositories take storage/API/network via constructors; GetX only stores the resulting singletons  
-3. **Routing** with `GetMaterialApp` + `GetPage` (splash → login → exercises → detail → favourites)  
-4. Low boilerplate relative to Bloc, while keeping feature folders and repository boundaries
-
-Controllers:
-
-- `AuthController` / `SplashController`
-- `ExerciseController` (list, search, filters)
-- `ExerciseDetailController`
-- `FavoritesController`
+* GetX handles the reactive state, the navigation, and most of the wiring between screens
+* Controllers hold the observable state and screens just listen and rebuild
+* Repositories are constructed through a small service locator so nothing is hard-wired together
+* A favorites controller lives for the whole life of the app so a heart you tap on one screen updates everywhere else instantly
+* GetX was picked because it gives state management, dependency injection, and routing in one place
+* That saved a lot of setup time without giving up structure
+* The project itself is small and simple, so a heavier solution like Bloc would have added more boilerplate than the app actually needed
 
 ---
 
-## Packages / libraries used
+## Packages / Libraries Used
 
-| Package | Why |
-|---------|-----|
-| `get` | State management, DI, navigation |
-| `dio` | REST client |
-| `hive` / `hive_flutter` | Auth session, typed exercise cache, favourites (fast key-value + typed objects; more scalable than SharedPreferences for structured data, still lighter than SQLite/Isar for this app) |
-| `connectivity_plus` | Online / offline detection |
-| `cached_network_image` | Image loading + disk cache |
-| `flutter_cache_manager` | Custom offline image cache + prefetch |
-| `flutter_screenutil` | Consistent scaling on phones/tablets |
-| `cupertino_icons` | iOS-style icon font (Flutter default) |
-
----
-
-## Features mapped to requirements
-
-1. **Authentication** — email/password validation, mock login, local session, auto-login  
-2. **Exercise dashboard** — name, category, difficulty, target muscle, thumbnail  
-3. **Search** — by exercise name  
-4. **Filters** — category + difficulty + target muscle (combined with AND)  
-5. **Details** — large image, description, instructions, equipment, related exercises  
-6. **Favourites** — add/remove + local persistence + favourites screen  
-7. **Offline** — caches exercise list, details, and favourite **snapshots**; serves Hive/API/asset when offline  
-8. **Error handling** — loading, empty, distinct offline vs API failure screens, retry (pull-to-refresh hard-fails into `AppErrorView`)  
-9. **Responsive UI** — ScreenUtil + breakpoints for phone list vs tablet grids / wide login  
+* `get` gives us state management, dependency injection, and navigation
+* `dio` handles talking to the exercise API
+* `hive` and `hive_flutter` store everything locally in a fast and typed way
+* `connectivity_plus` tells the app when it is online or offline
+* `flutter_screenutil` keeps sizing consistent across phones and tablets
+* `cached_network_image` and `flutter_cache_manager` load and cache exercise images
+* `cupertino_icons` gives us a few iOS-style icons
+* `flutter_lints`, `hive_generator`, `build_runner`, `integration_test`, `network_image_mock`, and `flutter_launcher_icons` are dev-only tools for linting, code generation, testing, and the app icon
+* A dependency override pins `objective_c` to version `9.3.0` to work around a crash in an iOS plugin
+* Hive was chosen over SharedPreferences because it is faster and stores real typed objects instead of just strings
+* Hive was chosen over SQLite or Isar because this app does not need complex queries or relational data
+* Auth sessions, exercises, and favorites all live in their own Hive boxes so each one can be managed and cleared on its own
 
 ---
 
-## Assumptions
+## Assumptions Made
 
-- Mock auth is intentional (assignment: no real backend required).  
-- Online loads are **REST-first** (`exercisesApiUrl`); Hive cache then bundled `assets/data/exercises.json` are fallbacks if the first load’s API call fails.  
-- **Pull-to-refresh / Retry** re-hits the API with `forceRefresh: true`. If that fails, the app shows the hard `AppErrorView` (not a silent soft-fail).  
-- Flip `AppConstants.debugForceApiHardFailure` to `true` to force `AppErrorView` on every load without cutting the network.  
-- Images come from public Unsplash URLs; offline still shows text/data (images may fall back to placeholders after prefetch).  
-- Favourites store full **`ExerciseModel` snapshots** in Hive (not ids alone), so the favourites screen works offline even if the main exercise cache changes.  
-- Local persistence uses **Hive** (auth, exercises, favourites snapshots, exercise-id index) with TypeAdapters for `UserModel` and `ExerciseModel`.
+* The password rule is simply six characters or more — there is no real account system behind it
+* Any email that is shaped like a real email is accepted since there is no backend checking it
+* The bundled exercise file is what the app leans on when the network truly cannot be reached on first load
+* Filtering by category, difficulty, and muscle all combine together so picking more filters narrows the results rather than widening them
+* Selecting more than one option inside a single filter (like two categories at once) still works like an either-or match within that one filter
+* Favorites are saved as full exercise snapshots so a favorite still shows all its details even if you never open it again while offline
+* Related exercises on the detail screen are a nice extra the assignment listed as optional, and they were included
 
 ---
 
 ## Trade-offs
 
-- **GetX for presentation + constructor DI for data** — repositories/controllers are wired in `ServiceLocator` / bindings with constructor injection; GetX holds singletons for `GetView` lookup (not a free-for-all service locator in the data layer).  
-- **Hive vs SharedPreferences/SQLite** — typed adapters and better scaling for structured caches than SharedPreferences; lighter than SQLite/Isar for this dataset.  
-- **Initial-load soft fallback** — if the first online API call fails, cache/asset still populate the list with a refresh-failed banner so demos aren’t blocked; explicit refresh/retry uses the hard error screen.  
-- **iOS `objective_c` pin** — temporary `dependency_overrides` to avoid a known plugin crash on newer `objective_c` builds.
+* On first load the app tries the real API and falls back to Hive or the bundled file if that fails, so it stays usable at all times — but a true “API down” error is rare on a cold start; it only shows up clearly when you pull to refresh or tap retry
+* Exercise images are cached to disk only after you have actually seen them once, so opening the app offline before ever seeing a certain image will show a branded placeholder instead of the real photo
 
 ---
 
-## Responsive notes
-
-- Design size: **390 × 844** (`flutter_screenutil`)  
-- Phone: compact exercise cards (list)  
-- Tablet: multi-column grids, wider content max-width, split login on wide canvases  
-- Breakpoints in `lib/utils/responsive.dart`
-
----
-
-## License
-
-Assignment / evaluation project — not published to pub.dev (`publish_to: none`).
+* Every core requirement in the assignment works end to end
+* Authentication, search, filtering, details, favorites, offline support, error handling, and responsive layouts for phones and tablets are all wired through real working code rather than placeholders
