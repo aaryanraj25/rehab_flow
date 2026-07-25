@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -6,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../utils/responsive.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../data/models/exercise_model.dart';
+import 'exercise_cached_image.dart';
 
 class ExerciseCard extends StatelessWidget {
   const ExerciseCard({
@@ -58,7 +58,11 @@ class _DenseCard extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      _Thumbnail(url: exercise.thumbnailUrl ?? exercise.imageUrl),
+                      ExerciseCachedImage(
+                        url: exercise.thumbnailUrl ?? exercise.imageUrl,
+                        fallbackCategory: exercise.category,
+                        showLoader: false,
+                      ),
                       Positioned(
                         left: 6.w,
                         top: 6.h,
@@ -145,7 +149,11 @@ class _GridCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _Thumbnail(url: exercise.thumbnailUrl ?? exercise.imageUrl),
+                  ExerciseCachedImage(
+                    url: exercise.thumbnailUrl ?? exercise.imageUrl,
+                    fallbackCategory: exercise.category,
+                    showLoader: false,
+                  ),
                   Positioned(
                     left: 10.w,
                     top: 10.h,
@@ -201,54 +209,6 @@ class _GridCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _Thumbnail extends StatelessWidget {
-  const _Thumbnail({required this.url});
-
-  final String? url;
-
-  @override
-  Widget build(BuildContext context) {
-    if (url == null || url!.isEmpty) {
-      return const _ThumbnailFallback();
-    }
-
-    return CachedNetworkImage(
-      imageUrl: url!,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => Container(
-        color: AppColors.coral.withValues(alpha: 0.18),
-        child: Center(
-          child: SizedBox(
-            width: 18.w,
-            height: 18.w,
-            child: const CircularProgressIndicator(
-              strokeWidth: 2,
-              color: AppColors.coralDeep,
-            ),
-          ),
-        ),
-      ),
-      errorWidget: (context, url, error) => const _ThumbnailFallback(),
-    );
-  }
-}
-
-class _ThumbnailFallback extends StatelessWidget {
-  const _ThumbnailFallback();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.coral.withValues(alpha: 0.2),
-      child: Icon(
-        Icons.fitness_center_rounded,
-        size: 28.sp,
-        color: AppColors.coralDeep,
       ),
     );
   }

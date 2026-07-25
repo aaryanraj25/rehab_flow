@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +25,9 @@ class _OfflineNetworkInfo extends NetworkInfo {
   @override
   Future<bool> get isConnected async => false;
 
+  @override
+  Stream<List<ConnectivityResult>> get onConnectivityChanged =>
+      const Stream.empty();
 }
 
 void main() {
@@ -160,7 +164,10 @@ void main() {
   });
 
   test('ExerciseController search and filters work together', () async {
-    final controller = ExerciseController(Get.find<ExerciseRepository>());
+    final controller = ExerciseController(
+      Get.find<ExerciseRepository>(),
+      Get.find<NetworkInfo>(),
+    );
     await controller.loadExercises();
 
     expect(controller.allExercises, isNotEmpty);
