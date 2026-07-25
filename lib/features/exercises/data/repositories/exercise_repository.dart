@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/storage/local_storage_service.dart';
 import '../../../../network/api_client.dart';
 import '../models/exercise_model.dart';
+import '../exercise_image_cache.dart';
 
 /// Loads exercises from bundled asset (source of truth for MVP content),
 /// optionally refreshes from a public REST endpoint, and caches for offline use.
@@ -26,30 +28,87 @@ class ExerciseRepository {
 
   Future<ExerciseFetchResult> getExercises({bool forceRefresh = false}) async {
     final online = await _networkInfo.isConnected;
-    final asset = await _loadFromAsset();
+    final cached = _readCachedExercises();
+
+    // Offline: serve local cache first, then bundled asset.
+    if (!online) {
+      if (cached.isNotEmpty) {
+        return ExerciseFetchResult(
+          exercises: cached,
+          fromCache: true,
+          isOffline: true,
+        );
+      }
+      try {
+        final asset = await _loadFromAsset();
+        if (asset.isEmpty) {
+          throw ApiException('No exercises available offline.');
+        }
+        await _persistAll(asset);
+        return ExerciseFetchResult(
+          exercises: asset,
+          fromCache: true,
+          isOffline: true,
+        );
+      } catch (e) {
+        // Truly nothing to show — surface as a hard failure to the controller.
+        rethrow;
+      }
+    }
 
     // Pull-to-refresh can try the remote feed; otherwise prefer the bundled
     // dataset so local content updates are not masked by stale GitHub JSON.
-    if (forceRefresh && online) {
+    if (forceRefresh) {
       try {
         final remote = await _fetchFromApi();
         await _persistAll(remote);
+        unawaited(ExerciseImageCache.prefetchExercises(remote));
         return ExerciseFetchResult(
           exercises: remote,
           fromCache: false,
           isOffline: false,
         );
       } catch (_) {
-        // Fall through to bundled asset.
+        if (cached.isNotEmpty) {
+          unawaited(ExerciseImageCache.prefetchExercises(cached));
+          return ExerciseFetchResult(
+            exercises: cached,
+            fromCache: true,
+            isOffline: false,
+            refreshFailed: true,
+          );
+        }
+        // No cache — fall through to asset, still signal soft refresh failure.
+        final asset = await _loadFromAsset();
+        await _persistAll(asset);
+        unawaited(ExerciseImageCache.prefetchExercises(asset));
+        return ExerciseFetchResult(
+          exercises: asset,
+          fromCache: true,
+          isOffline: false,
+          refreshFailed: true,
+        );
       }
     }
 
+    final asset = await _loadFromAsset();
     await _persistAll(asset);
+    // Warm disk cache while online so detail/list images work offline.
+    unawaited(ExerciseImageCache.prefetchExercises(asset));
     return ExerciseFetchResult(
       exercises: asset,
       fromCache: true,
-      isOffline: !online,
+      isOffline: false,
     );
+  }
+
+  List<ExerciseModel> _readCachedExercises() {
+    final raw = _storage.getJson(AppConstants.storageExercisesKey);
+    if (raw is! List) return const [];
+    return raw
+        .whereType<Map>()
+        .map((e) => ExerciseModel.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
   }
 
   Future<ExerciseModel?> getExerciseById(String id) async {

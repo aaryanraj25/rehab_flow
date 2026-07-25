@@ -28,7 +28,22 @@ class ExerciseListScreen extends GetView<ExerciseController> {
       body: Column(
         children: [
           _Header(auth: auth),
-          Obx(() => OfflineBanner(visible: controller.isOffline.value)),
+          Obx(() {
+            if (controller.isOffline.value) {
+              return const OfflineBanner(visible: true);
+            }
+            if (controller.refreshFailed.value && controller.fromCache.value) {
+              return const OfflineBanner(
+                visible: true,
+                online: false,
+                message: 'Couldn’t refresh — showing saved data',
+              );
+            }
+            if (controller.showOnlineBanner.value) {
+              return const OfflineBanner(visible: true, online: true);
+            }
+            return const SizedBox.shrink();
+          }),
           Padding(
             padding: EdgeInsets.fromLTRB(pad, 12.h, pad, 0),
             child: Row(
@@ -100,6 +115,12 @@ class ExerciseListScreen extends GetView<ExerciseController> {
                                   ? 'Try adjusting search or filters.'
                                   : 'Nothing to show right now.',
                               icon: Icons.search_off_rounded,
+                              actionLabel: controller.hasActiveFilters
+                                  ? 'Clear filters'
+                                  : null,
+                              onAction: controller.hasActiveFilters
+                                  ? controller.clearFilters
+                                  : null,
                             ),
                           )
                         else if (isTablet)

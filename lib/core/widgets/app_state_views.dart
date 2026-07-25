@@ -198,10 +198,12 @@ class OfflineBanner extends StatelessWidget {
     super.key,
     required this.visible,
     this.online = false,
+    this.message,
   });
 
   final bool visible;
   final bool online;
+  final String? message;
 
   @override
   Widget build(BuildContext context) {
@@ -209,9 +211,10 @@ class OfflineBanner extends StatelessWidget {
 
     final background = online ? AppColors.success : AppColors.ink;
     final icon = online ? Icons.cloud_done_rounded : Icons.cloud_off;
-    final message = online
-        ? 'You are online'
-        : 'You are offline — showing cached data';
+    final resolved = message ??
+        (online
+            ? 'You are online'
+            : 'You are offline — showing cached data');
 
     return Material(
       color: background,
@@ -223,7 +226,7 @@ class OfflineBanner extends StatelessWidget {
             SizedBox(width: 8.w),
             Expanded(
               child: Text(
-                message,
+                resolved,
                 style: TextStyle(
                   color: AppColors.textOnCoral,
                   fontSize: 13.sp,

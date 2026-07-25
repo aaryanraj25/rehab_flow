@@ -73,15 +73,19 @@ class ExerciseModel {
       };
 }
 
-/// Result wrapper so UI can show whether data came from network or cache.
+/// Result wrapper so UI can show cache / offline / soft-refresh failure state.
 class ExerciseFetchResult {
   const ExerciseFetchResult({
     required this.exercises,
     required this.fromCache,
     this.isOffline = false,
+    this.refreshFailed = false,
   });
 
   final List<ExerciseModel> exercises;
   final bool fromCache;
   final bool isOffline;
+
+  /// True when a forced remote refresh failed but local cache/asset was used.
+  final bool refreshFailed;
 }
