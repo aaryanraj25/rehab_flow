@@ -7,6 +7,7 @@ import '../../features/exercises/data/repositories/exercise_repository.dart';
 import '../../features/exercises/presentation/controllers/exercise_controller.dart';
 import '../../features/exercises/presentation/controllers/exercise_detail_controller.dart';
 import '../../features/favorites/presentation/controllers/favorites_controller.dart';
+import '../../network/api_client.dart';
 
 class SplashBinding extends Bindings {
   @override
@@ -31,7 +32,12 @@ class ExerciseBinding extends Bindings {
   void dependencies() {
     AuthBinding().dependencies();
     if (!Get.isRegistered<ExerciseController>()) {
-      Get.put(ExerciseController(Get.find<ExerciseRepository>()));
+      Get.put(
+        ExerciseController(
+          Get.find<ExerciseRepository>(),
+          Get.find<NetworkInfo>(),
+        ),
+      );
     }
   }
 }
@@ -42,7 +48,12 @@ class ExerciseDetailBinding extends Bindings {
     if (Get.isRegistered<ExerciseDetailController>()) {
       Get.delete<ExerciseDetailController>(force: true);
     }
-    Get.put(ExerciseDetailController(Get.find<ExerciseRepository>()));
+    Get.put(
+      ExerciseDetailController(
+        Get.find<ExerciseRepository>(),
+        Get.find<NetworkInfo>(),
+      ),
+    );
   }
 }
 
