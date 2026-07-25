@@ -16,9 +16,9 @@ class AppConstants {
   static const String exercisesAssetPath = 'assets/data/exercises.json';
 
   static const String storageAuthKey = 'auth_session';
-  static const String storageExercisesKey = 'cached_exercises';
+  static const String storageExercisesKey = 'cached_exercises_v2';
   static const String storageFavoritesKey = 'favorite_exercise_ids';
-  static const String storageExerciseDetailsPrefix = 'exercise_detail_';
+  static const String storageExerciseDetailsPrefix = 'exercise_detail_v2_';
 
   static const Duration apiTimeout = Duration(seconds: 12);
   static const int passwordMinLength = 6;

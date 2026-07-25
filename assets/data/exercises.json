@@ -5,12 +5,16 @@
     "category": "Strength",
     "difficulty": "Beginner",
     "targetMuscle": "Quadriceps",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop",
     "description": "A controlled seated movement that strengthens the quadriceps and improves knee stability after injury or surgery.",
-    "instructions": "Sit upright in a sturdy chair with feet flat on the floor. Slowly straighten one knee until the leg is almost fully extended. Hold for 3–5 seconds, then lower with control. Complete the prescribed repetitions, then switch legs.",
+    "instructions": "Sit upright in a sturdy chair with feet flat on the floor. Slowly straighten one knee until the leg is almost fully extended. Hold for 3\u20135 seconds, then lower with control. Complete the prescribed repetitions, then switch legs.",
     "equipment": "Chair",
-    "relatedIds": ["2", "5", "8"]
+    "relatedIds": [
+      "2",
+      "5",
+      "8"
+    ]
   },
   {
     "id": "2",
@@ -18,12 +22,15 @@
     "category": "Mobility",
     "difficulty": "Beginner",
     "targetMuscle": "Ankles",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&auto=format&fit=crop",
     "description": "Gentle circular ankle movements that restore range of motion and reduce stiffness after immobilization.",
     "instructions": "Sit or lie comfortably. Lift one foot slightly off the floor. Rotate the ankle clockwise for 10 circles, then counterclockwise for 10 circles. Keep the movement slow and pain-free. Repeat on the other side.",
     "equipment": "None",
-    "relatedIds": ["1", "6"]
+    "relatedIds": [
+      "1",
+      "6"
+    ]
   },
   {
     "id": "3",
@@ -31,12 +38,15 @@
     "category": "Strength",
     "difficulty": "Beginner",
     "targetMuscle": "Chest",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=800&auto=format&fit=crop",
     "description": "A low-impact upper-body strengthening exercise ideal for early-stage shoulder and chest rehabilitation.",
     "instructions": "Stand facing a wall at arm's length. Place palms flat on the wall at shoulder height. Bend elbows and lower your chest toward the wall, then push back to the start. Keep your body in a straight line throughout.",
     "equipment": "Wall",
-    "relatedIds": ["7", "10"]
+    "relatedIds": [
+      "7",
+      "10"
+    ]
   },
   {
     "id": "4",
@@ -44,12 +54,15 @@
     "category": "Core",
     "difficulty": "Beginner",
     "targetMuscle": "Lower Back",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop",
     "description": "A foundational core activation drill that reduces lower-back tension and improves lumbar control.",
     "instructions": "Lie on your back with knees bent and feet flat. Gently flatten your lower back into the floor by tilting the pelvis. Hold briefly, then release to a neutral spine. Breathe steadily and avoid forcing the movement.",
     "equipment": "Mat",
-    "relatedIds": ["9", "11"]
+    "relatedIds": [
+      "9",
+      "11"
+    ]
   },
   {
     "id": "5",
@@ -57,12 +70,16 @@
     "category": "Strength",
     "difficulty": "Intermediate",
     "targetMuscle": "Quadriceps",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=800&auto=format&fit=crop",
     "description": "Partial-range squats that build functional leg strength while protecting recovering knees and hips.",
     "instructions": "Stand with feet shoulder-width apart, holding a stable surface if needed. Bend knees slightly as if sitting back into a chair, stopping before pain. Return to standing with control. Keep knees tracking over toes.",
     "equipment": "None (optional chair support)",
-    "relatedIds": ["1", "8", "12"]
+    "relatedIds": [
+      "1",
+      "8",
+      "12"
+    ]
   },
   {
     "id": "6",
@@ -70,12 +87,15 @@
     "category": "Strength",
     "difficulty": "Beginner",
     "targetMuscle": "Calves",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&auto=format&fit=crop",
     "description": "Strengthens the calf complex and improves ankle push-off capacity for walking and balance.",
     "instructions": "Stand near a wall for balance. Rise onto the balls of both feet, lifting heels as high as comfortable. Pause briefly, then lower slowly. Progress to single-leg raises when ready.",
     "equipment": "Wall for support",
-    "relatedIds": ["2", "12"]
+    "relatedIds": [
+      "2",
+      "12"
+    ]
   },
   {
     "id": "7",
@@ -83,12 +103,15 @@
     "category": "Strength",
     "difficulty": "Intermediate",
     "targetMuscle": "Shoulders",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1581009146145-b5ef0754ff27?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1581009146145-b5ef0754ff27?w=800&auto=format&fit=crop",
     "description": "Targets the rotator cuff to improve shoulder stability and control after strain or surgery.",
-    "instructions": "Hold a light resistance band with elbow bent at 90° and tucked to your side. Rotate the forearm outward against the band, then return slowly. Keep the elbow fixed against the body.",
+    "instructions": "Hold a light resistance band with elbow bent at 90\u00b0 and tucked to your side. Rotate the forearm outward against the band, then return slowly. Keep the elbow fixed against the body.",
     "equipment": "Resistance band",
-    "relatedIds": ["3", "10"]
+    "relatedIds": [
+      "3",
+      "10"
+    ]
   },
   {
     "id": "8",
@@ -96,12 +119,15 @@
     "category": "Strength",
     "difficulty": "Intermediate",
     "targetMuscle": "Glutes",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&auto=format&fit=crop",
     "description": "Isolates the gluteus medius to support hip stability, gait quality, and knee alignment.",
     "instructions": "Lie on your side with legs stacked and body aligned. Lift the top leg slightly upward without rolling the hips back. Lower with control. Complete repetitions, then switch sides.",
     "equipment": "Mat",
-    "relatedIds": ["5", "1"]
+    "relatedIds": [
+      "5",
+      "1"
+    ]
   },
   {
     "id": "9",
@@ -109,12 +135,15 @@
     "category": "Flexibility",
     "difficulty": "Beginner",
     "targetMuscle": "Spine",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop",
     "description": "A flowing spinal mobility sequence that eases stiffness and encourages healthy segmental movement.",
     "instructions": "Start on hands and knees. Inhale as you drop the belly and lift the chest (cow). Exhale as you round the spine and tuck the chin (cat). Move smoothly with the breath for several cycles.",
     "equipment": "Mat",
-    "relatedIds": ["4", "11"]
+    "relatedIds": [
+      "4",
+      "11"
+    ]
   },
   {
     "id": "10",
@@ -122,12 +151,15 @@
     "category": "Strength",
     "difficulty": "Beginner",
     "targetMuscle": "Upper Back",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1581009146145-b5ef0754ff27?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1581009146145-b5ef0754ff27?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop",
     "description": "Improves posture and scapular control, often used in neck and shoulder rehab programs.",
-    "instructions": "Sit or stand tall. Gently squeeze the shoulder blades together without shrugging. Hold for 3–5 seconds, then release. Keep the neck relaxed throughout.",
+    "instructions": "Sit or stand tall. Gently squeeze the shoulder blades together without shrugging. Hold for 3\u20135 seconds, then release. Keep the neck relaxed throughout.",
     "equipment": "None",
-    "relatedIds": ["3", "7"]
+    "relatedIds": [
+      "3",
+      "7"
+    ]
   },
   {
     "id": "11",
@@ -135,12 +167,15 @@
     "category": "Core",
     "difficulty": "Intermediate",
     "targetMuscle": "Core",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800&auto=format&fit=crop",
     "description": "A stability exercise that trains anti-rotation core strength and coordinated limb control.",
     "instructions": "Begin on hands and knees. Extend one arm forward and the opposite leg back while keeping the torso still. Hold briefly, return to start, and switch sides. Avoid arching or twisting the lower back.",
     "equipment": "Mat",
-    "relatedIds": ["4", "9"]
+    "relatedIds": [
+      "4",
+      "9"
+    ]
   },
   {
     "id": "12",
@@ -148,12 +183,16 @@
     "category": "Balance",
     "difficulty": "Intermediate",
     "targetMuscle": "Ankles",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&auto=format&fit=crop",
     "description": "Challenges proprioception and ankle stability to reduce fall risk and support return to sport.",
-    "instructions": "Stand near a counter for safety. Lift one foot and balance on the stance leg. Hold 20–30 seconds. Progress by closing the eyes or standing on a soft surface when appropriate.",
+    "instructions": "Stand near a counter for safety. Lift one foot and balance on the stance leg. Hold 20\u201330 seconds. Progress by closing the eyes or standing on a soft surface when appropriate.",
     "equipment": "Optional foam pad",
-    "relatedIds": ["6", "2", "5"]
+    "relatedIds": [
+      "6",
+      "2",
+      "5"
+    ]
   },
   {
     "id": "13",
@@ -161,12 +200,15 @@
     "category": "Flexibility",
     "difficulty": "Beginner",
     "targetMuscle": "Hamstrings",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&auto=format&fit=crop",
     "description": "Lengthens the posterior thigh to improve flexibility and ease tension related to sitting or injury.",
-    "instructions": "Sit on the floor with one leg extended and the other bent. Hinge gently from the hips toward the extended leg until a mild stretch is felt. Hold 20–30 seconds without bouncing, then switch sides.",
+    "instructions": "Sit on the floor with one leg extended and the other bent. Hinge gently from the hips toward the extended leg until a mild stretch is felt. Hold 20\u201330 seconds without bouncing, then switch sides.",
     "equipment": "Mat",
-    "relatedIds": ["14", "5"]
+    "relatedIds": [
+      "14",
+      "5"
+    ]
   },
   {
     "id": "14",
@@ -174,12 +216,15 @@
     "category": "Strength",
     "difficulty": "Beginner",
     "targetMuscle": "Glutes",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&auto=format&fit=crop",
     "description": "Activates the glutes and posterior chain while unloading the lower back in a supported position.",
     "instructions": "Lie on your back with knees bent and feet hip-width apart. Press through the heels to lift the hips until thighs and torso form a straight line. Squeeze the glutes at the top, then lower slowly.",
     "equipment": "Mat",
-    "relatedIds": ["8", "4"]
+    "relatedIds": [
+      "8",
+      "4"
+    ]
   },
   {
     "id": "15",
@@ -187,12 +232,15 @@
     "category": "Strength",
     "difficulty": "Intermediate",
     "targetMuscle": "Upper Back",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop",
     "description": "Builds mid-back strength and scapular endurance for posture correction and shoulder health.",
     "instructions": "Anchor a resistance band at mid-chest height. Hold both ends, step back to create tension, and pull elbows back while squeezing the shoulder blades. Return slowly to the start position.",
     "equipment": "Resistance band",
-    "relatedIds": ["10", "7"]
+    "relatedIds": [
+      "10",
+      "7"
+    ]
   },
   {
     "id": "16",
@@ -200,12 +248,16 @@
     "category": "Functional",
     "difficulty": "Advanced",
     "targetMuscle": "Quadriceps",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517963879433-6ad2b056d944?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1517963879433-6ad2b056d944?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1517963879433-6ad2b056d944?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1517963879433-6ad2b056d944?w=800&auto=format&fit=crop",
     "description": "A functional lower-limb drill that rebuilds stair and gait capacity with progressive loading.",
     "instructions": "Stand facing a low step. Step up with the affected leg, bring the other foot up, then step down with control. Keep the knee aligned over the mid-foot. Increase step height gradually.",
     "equipment": "Step or sturdy platform",
-    "relatedIds": ["5", "1", "12"]
+    "relatedIds": [
+      "5",
+      "1",
+      "12"
+    ]
   },
   {
     "id": "17",
@@ -213,12 +265,15 @@
     "category": "Mobility",
     "difficulty": "Beginner",
     "targetMuscle": "Neck",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop",
     "description": "Corrects forward-head posture and strengthens deep neck flexors for cervical rehabilitation.",
-    "instructions": "Sit tall and gently draw the chin straight back as if making a double chin. Avoid tilting the head up or down. Hold 3–5 seconds and release. Perform pain-free repetitions.",
+    "instructions": "Sit tall and gently draw the chin straight back as if making a double chin. Avoid tilting the head up or down. Hold 3\u20135 seconds and release. Perform pain-free repetitions.",
     "equipment": "None",
-    "relatedIds": ["10", "9"]
+    "relatedIds": [
+      "10",
+      "9"
+    ]
   },
   {
     "id": "18",
@@ -226,12 +281,15 @@
     "category": "Strength",
     "difficulty": "Beginner",
     "targetMuscle": "Glutes",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&auto=format&fit=crop",
     "description": "Targets hip external rotators to support pelvic stability and reduce compensatory movement patterns.",
     "instructions": "Lie on your side with knees bent and feet together. Keeping feet stacked, open the top knee like a clamshell without rolling the pelvis. Lower with control and repeat, then switch sides.",
     "equipment": "Mat (optional resistance band)",
-    "relatedIds": ["8", "14"]
+    "relatedIds": [
+      "8",
+      "14"
+    ]
   },
   {
     "id": "19",
@@ -239,12 +297,15 @@
     "category": "Flexibility",
     "difficulty": "Beginner",
     "targetMuscle": "Calves",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&auto=format&fit=crop",
     "description": "Stretches the gastrocnemius and soleus to improve ankle dorsiflexion needed for walking and squatting.",
-    "instructions": "Place hands on a wall and step one foot back. Keep the back heel down and knee straight for a gastroc stretch, then slightly bend the back knee for a soleus stretch. Hold each 20–30 seconds per side.",
+    "instructions": "Place hands on a wall and step one foot back. Keep the back heel down and knee straight for a gastroc stretch, then slightly bend the back knee for a soleus stretch. Hold each 20\u201330 seconds per side.",
     "equipment": "Wall",
-    "relatedIds": ["6", "2"]
+    "relatedIds": [
+      "6",
+      "2"
+    ]
   },
   {
     "id": "20",
@@ -252,11 +313,14 @@
     "category": "Core",
     "difficulty": "Advanced",
     "targetMuscle": "Core",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=400",
-    "imageUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=400&auto=format&fit=crop",
+    "imageUrl": "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=800&auto=format&fit=crop",
     "description": "Advanced core control drill that trains limb movement while maintaining a stable lumbar spine.",
-    "instructions": "Lie on your back with arms up and knees bent to 90°. Slowly extend opposite arm and leg toward the floor while keeping the lower back pressed down. Return and switch sides. Stop if the back arches.",
+    "instructions": "Lie on your back with arms up and knees bent to 90\u00b0. Slowly extend opposite arm and leg toward the floor while keeping the lower back pressed down. Return and switch sides. Stop if the back arches.",
     "equipment": "Mat",
-    "relatedIds": ["11", "4"]
+    "relatedIds": [
+      "11",
+      "4"
+    ]
   }
 ]

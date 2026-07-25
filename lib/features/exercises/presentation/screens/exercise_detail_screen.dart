@@ -8,14 +8,13 @@ import '../../../../core/widgets/app_state_views.dart';
 import '../../../../utils/responsive.dart';
 import '../../data/models/exercise_model.dart';
 import '../controllers/exercise_detail_controller.dart';
+import '../widgets/exercise_card.dart';
 
 class ExerciseDetailScreen extends GetView<ExerciseDetailController> {
   const ExerciseDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = Responsive.isTablet(context);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Obx(() {
@@ -29,158 +28,119 @@ class ExerciseDetailScreen extends GetView<ExerciseDetailController> {
                 foregroundColor: AppColors.textOnCoral,
               ),
               body: AppErrorView(
-                message: controller.errorMessage.value ?? 'Unable to load detail.',
+                message:
+                    controller.errorMessage.value ?? 'Unable to load detail.',
                 onRetry: controller.loadDetail,
               ),
             );
           case ExerciseDetailStatus.success:
             final exercise = controller.exercise.value!;
+            final pad = Responsive.horizontalPadding(context);
+
             return CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  expandedHeight: isTablet ? 320.h : 260.h,
                   pinned: true,
                   backgroundColor: AppColors.coral,
                   foregroundColor: AppColors.textOnCoral,
-                  flexibleSpace: FlexibleSpaceBar(
-                    title: Text(
-                      exercise.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textOnCoral,
-                      ),
-                    ),
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        _HeroImage(url: exercise.imageUrl ?? exercise.thumbnailUrl),
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withValues(alpha: 0.15),
-                                Colors.black.withValues(alpha: 0.55),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                  title: Text(
+                    exercise.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      Responsive.horizontalPadding(context),
-                      18.h,
-                      Responsive.horizontalPadding(context),
-                      28.h,
-                    ),
+                    padding: EdgeInsets.fromLTRB(pad, 16.h, pad, 40.h),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: Responsive.maxContentWidth(context),
+                        maxWidth: Responsive.value(
+                          context,
+                          phone: double.infinity,
+                          tablet: 720.w,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _MediaBlock(exercise: exercise),
+                          SizedBox(height: 18.h),
+                          Text(
+                            exercise.name,
+                            style: TextStyle(
+                              fontSize: 26.sp,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.6,
+                              height: 1.15,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
                           Wrap(
                             spacing: 8.w,
                             runSpacing: 8.h,
                             children: [
-                              _InfoChip(
+                              _MetaChip(
                                 label: exercise.category,
                                 icon: Icons.category_outlined,
                               ),
-                              _InfoChip(
+                              _MetaChip(
                                 label: exercise.difficulty,
                                 icon: Icons.speed_rounded,
-                                color: DifficultyColors.forLevel(exercise.difficulty),
+                                solidColor: DifficultyColors.forLevel(
+                                  exercise.difficulty,
+                                ),
                               ),
-                              _InfoChip(
+                              _MetaChip(
                                 label: exercise.targetMuscle,
                                 icon: Icons.accessibility_new_rounded,
+                              ),
+                              _MetaChip(
+                                label: exercise.equipment,
+                                icon: Icons.handyman_outlined,
                               ),
                             ],
                           ),
                           SizedBox(height: 22.h),
-                          _SectionCard(
-                            title: 'Description',
-                            child: Text(
-                              exercise.description,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                height: 1.5,
-                                color: AppColors.ink,
-                              ),
+                          _SectionTitle(title: 'About'),
+                          SizedBox(height: 8.h),
+                          Text(
+                            exercise.description,
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              height: 1.55,
+                              color: AppColors.ink,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(height: 14.h),
-                          _SectionCard(
-                            title: 'Instructions',
-                            child: Text(
-                              exercise.instructions,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                height: 1.55,
-                                color: AppColors.ink,
+                          SizedBox(height: 22.h),
+                          _SectionTitle(title: 'How to perform'),
+                          SizedBox(height: 12.h),
+                          ...exercise.instructionSteps.asMap().entries.map(
+                            (entry) => Padding(
+                              padding: EdgeInsets.only(bottom: 10.h),
+                              child: _StepRow(
+                                index: entry.key + 1,
+                                text: entry.value,
                               ),
-                            ),
-                          ),
-                          SizedBox(height: 14.h),
-                          _SectionCard(
-                            title: 'Equipment required',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.handyman_outlined,
-                                  size: 18.sp,
-                                  color: AppColors.coralDeep,
-                                ),
-                                SizedBox(width: 8.w),
-                                Expanded(
-                                  child: Text(
-                                    exercise.equipment,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.ink,
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
                           if (controller.related.isNotEmpty) ...[
-                            SizedBox(height: 24.h),
-                            Text(
-                              'Related exercises',
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -0.3,
-                                color: AppColors.ink,
-                              ),
-                            ),
+                            SizedBox(height: 14.h),
+                            _SectionTitle(title: 'Related exercises'),
                             SizedBox(height: 12.h),
-                            SizedBox(
-                              height: 168.h,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: controller.related.length,
-                                separatorBuilder: (context, index) =>
-                                    SizedBox(width: 12.w),
-                                itemBuilder: (context, index) {
-                                  final related = controller.related[index];
-                                  return _RelatedTile(
-                                    exercise: related,
-                                    onTap: () => controller.openRelated(related),
-                                  );
-                                },
+                            ...controller.related.map(
+                              (related) => Padding(
+                                padding: EdgeInsets.only(bottom: 10.h),
+                                child: ExerciseCard(
+                                  exercise: related,
+                                  dense: true,
+                                  onTap: () => controller.openRelated(related),
+                                ),
                               ),
                             ),
                           ],
@@ -197,105 +157,192 @@ class ExerciseDetailScreen extends GetView<ExerciseDetailController> {
   }
 }
 
-class _HeroImage extends StatelessWidget {
-  const _HeroImage({required this.url});
+class _MediaBlock extends StatelessWidget {
+  const _MediaBlock({required this.exercise});
 
-  final String? url;
+  final ExerciseModel exercise;
 
   @override
   Widget build(BuildContext context) {
-    if (url == null || url!.isEmpty) {
-      return Container(
-        color: AppColors.coral,
-        child: Icon(
-          Icons.fitness_center_rounded,
-          size: 64.sp,
-          color: AppColors.textOnCoral,
-        ),
-      );
-    }
+    final url = exercise.imageUrl ?? exercise.thumbnailUrl;
+    final height = Responsive.value(context, phone: 200.h, tablet: 260.h);
 
-    return CachedNetworkImage(
-      imageUrl: url!,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => Container(
-        color: AppColors.coralSoft,
-        child: const Center(
-          child: CircularProgressIndicator(color: AppColors.textOnCoral),
-        ),
-      ),
-      errorWidget: (context, url, error) => Container(
-        color: AppColors.coral,
-        child: Icon(
-          Icons.fitness_center_rounded,
-          size: 64.sp,
-          color: AppColors.textOnCoral,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22.r),
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (url == null || url.isEmpty)
+              _BrandFallback(category: exercise.category)
+            else
+              CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                placeholder: (context, _) =>
+                    _BrandFallback(category: exercise.category),
+                errorWidget: (context, url, error) =>
+                    _BrandFallback(category: exercise.category),
+              ),
+            Positioned(
+              left: 12.w,
+              bottom: 12.h,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color: AppColors.ink.withValues(alpha: 0.72),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  exercise.targetMuscle,
+                  style: TextStyle(
+                    color: AppColors.textOnCoral,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+class _BrandFallback extends StatelessWidget {
+  const _BrandFallback({required this.category});
+
+  final String category;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.coralDeep,
+            AppColors.coral,
+            AppColors.coralSoft,
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.fitness_center_rounded,
+              size: 42.sp,
+              color: AppColors.textOnCoral,
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              category,
+              style: TextStyle(
+                color: AppColors.textOnCoral,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.title});
 
   final String title;
-  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.ink.withValues(alpha: 0.06),
-            blurRadius: 16.r,
-            offset: Offset(0, 6.h),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w800,
-              color: AppColors.coralDeep,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          child,
-        ],
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 18.sp,
+        fontWeight: FontWeight.w900,
+        letterSpacing: -0.3,
+        color: AppColors.ink,
       ),
     );
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({
+class _StepRow extends StatelessWidget {
+  const _StepRow({required this.index, required this.text});
+
+  final int index;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28.w,
+          height: 28.w,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.coral,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: Text(
+            '$index',
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textOnCoral,
+            ),
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(top: 3.h),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 14.sp,
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+                color: AppColors.ink,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetaChip extends StatelessWidget {
+  const _MetaChip({
     required this.label,
     required this.icon,
-    this.color,
+    this.solidColor,
   });
 
   final String label;
   final IconData icon;
-  final Color? color;
+  final Color? solidColor;
 
   @override
   Widget build(BuildContext context) {
-    final bg = color ?? AppColors.coral;
+    final solid = solidColor != null;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
       decoration: BoxDecoration(
-        color: bg.withValues(alpha: color == null ? 0.14 : 1),
+        color: solid ? solidColor : AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(14.r),
+        border: solid ? null : Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -303,7 +350,7 @@ class _InfoChip extends StatelessWidget {
           Icon(
             icon,
             size: 14.sp,
-            color: color == null ? AppColors.coralDeep : Colors.white,
+            color: solid ? Colors.white : AppColors.coralDeep,
           ),
           SizedBox(width: 6.w),
           Text(
@@ -311,65 +358,10 @@ class _InfoChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w700,
-              color: color == null ? AppColors.ink : Colors.white,
+              color: solid ? Colors.white : AppColors.ink,
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _RelatedTile extends StatelessWidget {
-  const _RelatedTile({required this.exercise, required this.onTap});
-
-  final ExerciseModel exercise;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 148.w,
-      child: Material(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(18.r),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: CachedNetworkImage(
-                  imageUrl: exercise.thumbnailUrl ?? exercise.imageUrl ?? '',
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Container(
-                    color: AppColors.coral.withValues(alpha: 0.2),
-                    child: Icon(
-                      Icons.fitness_center_rounded,
-                      color: AppColors.coralDeep,
-                      size: 28.sp,
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(10.w, 8.h, 10.w, 10.h),
-                child: Text(
-                  exercise.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.ink,
-                    height: 1.25,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

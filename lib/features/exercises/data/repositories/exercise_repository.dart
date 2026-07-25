@@ -7,8 +7,8 @@ import '../../../../core/storage/local_storage_service.dart';
 import '../../../../network/api_client.dart';
 import '../models/exercise_model.dart';
 
-/// Loads exercises from a public REST endpoint, falls back to bundled mock
-/// data, and caches list + detail payloads for offline use.
+/// Loads exercises from bundled asset (source of truth for MVP content),
+/// optionally refreshes from a public REST endpoint, and caches for offline use.
 class ExerciseRepository {
   ExerciseRepository({
     required LocalStorageService storage,
@@ -26,53 +26,29 @@ class ExerciseRepository {
 
   Future<ExerciseFetchResult> getExercises({bool forceRefresh = false}) async {
     final online = await _networkInfo.isConnected;
+    final asset = await _loadFromAsset();
 
-    if (online) {
+    // Pull-to-refresh can try the remote feed; otherwise prefer the bundled
+    // dataset so local content updates are not masked by stale GitHub JSON.
+    if (forceRefresh && online) {
       try {
         final remote = await _fetchFromApi();
-        await _cacheExercises(remote);
-        for (final exercise in remote) {
-          await cacheExerciseDetail(exercise);
-        }
+        await _persistAll(remote);
         return ExerciseFetchResult(
           exercises: remote,
           fromCache: false,
           isOffline: false,
         );
       } catch (_) {
-        final cached = _readCachedExercises();
-        if (cached.isNotEmpty) {
-          return ExerciseFetchResult(
-            exercises: cached,
-            fromCache: true,
-            isOffline: false,
-          );
-        }
-        final asset = await _loadFromAsset();
-        await _cacheExercises(asset);
-        return ExerciseFetchResult(
-          exercises: asset,
-          fromCache: true,
-          isOffline: false,
-        );
+        // Fall through to bundled asset.
       }
     }
 
-    final cached = _readCachedExercises();
-    if (cached.isNotEmpty && !forceRefresh) {
-      return ExerciseFetchResult(
-        exercises: cached,
-        fromCache: true,
-        isOffline: true,
-      );
-    }
-
-    final asset = await _loadFromAsset();
-    await _cacheExercises(asset);
+    await _persistAll(asset);
     return ExerciseFetchResult(
       exercises: asset,
       fromCache: true,
-      isOffline: true,
+      isOffline: !online,
     );
   }
 
@@ -110,13 +86,11 @@ class ExerciseRepository {
     );
   }
 
-  List<ExerciseModel> _readCachedExercises() {
-    final raw = _storage.getJson(AppConstants.storageExercisesKey);
-    if (raw is! List) return const [];
-    return raw
-        .whereType<Map>()
-        .map((e) => ExerciseModel.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+  Future<void> _persistAll(List<ExerciseModel> exercises) async {
+    await _cacheExercises(exercises);
+    for (final exercise in exercises) {
+      await cacheExerciseDetail(exercise);
+    }
   }
 
   Future<void> _cacheExercises(List<ExerciseModel> exercises) {

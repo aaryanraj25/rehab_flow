@@ -25,6 +25,20 @@ class ExerciseModel {
   final String? imageUrl;
   final List<String> relatedIds;
 
+  /// Splits instructions into readable step list for the detail UI.
+  List<String> get instructionSteps {
+    final trimmed = instructions.trim();
+    if (trimmed.isEmpty) return const [];
+
+    final parts = trimmed
+        .split(RegExp(r'(?<=[.!?])\s+'))
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .toList();
+
+    return parts.isEmpty ? [trimmed] : parts;
+  }
+
   factory ExerciseModel.fromJson(Map<String, dynamic> json) {
     return ExerciseModel(
       id: json['id'].toString(),
