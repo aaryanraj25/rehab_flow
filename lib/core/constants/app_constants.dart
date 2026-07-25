@@ -4,4 +4,19 @@ class AppConstants {
 
   static const String appName = 'RehabFlow';
   static const String appTagline = 'Rehabilitation Exercise Management';
+
+  /// Mock/public REST endpoint for exercises (fallback: bundled asset).
+  static const String exercisesApiUrl =
+      'https://raw.githubusercontent.com/aaryandev/rehab-flow-mock/main/exercises.json';
+
+  static const String storageAuthKey = 'auth_session';
+  static const String storageExercisesKey = 'cached_exercises';
+  static const String storageFavoritesKey = 'favorite_exercise_ids';
+  static const String storageExerciseDetailsPrefix = 'exercise_detail_';
+
+  static const Duration apiTimeout = Duration(seconds: 12);
+  static const int passwordMinLength = 6;
+
+  static const String demoEmailHint = 'demo@rehabflow.app';
+  static const String demoPasswordHint = 'rehab123';
 }
