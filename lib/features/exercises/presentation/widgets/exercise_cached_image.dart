@@ -143,41 +143,55 @@ class _Fallback extends StatelessWidget {
           ],
         ),
       ),
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 52.w,
-                height: 52.w,
-                decoration: BoxDecoration(
-                  color: AppColors.textOnCoral.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  iconForCategory(category),
-                  size: 28.sp,
-                  color: AppColors.textOnCoral,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxHeight < 110;
+          final iconBox = compact ? 28.w : 52.w;
+          final iconGlyph = compact ? 16.sp : 28.sp;
+          final showCaption = constraints.maxHeight >= 72;
+
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: compact ? 6.w : 12.w),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: iconBox,
+                      height: iconBox,
+                      decoration: BoxDecoration(
+                        color: AppColors.textOnCoral.withValues(alpha: 0.18),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        iconForCategory(category),
+                        size: iconGlyph,
+                        color: AppColors.textOnCoral,
+                      ),
+                    ),
+                    if (showCaption) ...[
+                      SizedBox(height: compact ? 4.h : 8.h),
+                      Text(
+                        caption,
+                        textAlign: TextAlign.center,
+                        maxLines: compact ? 1 : 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.textOnCoral,
+                          fontSize: compact ? 10.sp : 12.sp,
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              SizedBox(height: 8.h),
-              Text(
-                caption,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppColors.textOnCoral,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                  height: 1.25,
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

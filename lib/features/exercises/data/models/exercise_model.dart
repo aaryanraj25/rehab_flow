@@ -1,5 +1,10 @@
-class ExerciseModel {
-  const ExerciseModel({
+import 'package:hive/hive.dart';
+
+part 'exercise_model.g.dart';
+
+@HiveType(typeId: 1)
+class ExerciseModel extends HiveObject {
+  ExerciseModel({
     required this.id,
     required this.name,
     required this.category,
@@ -13,16 +18,37 @@ class ExerciseModel {
     this.relatedIds = const [],
   });
 
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final String category;
+
+  @HiveField(3)
   final String difficulty;
+
+  @HiveField(4)
   final String targetMuscle;
+
+  @HiveField(5)
   final String description;
+
+  @HiveField(6)
   final String instructions;
+
+  @HiveField(7)
   final String equipment;
+
+  @HiveField(8)
   final String? thumbnailUrl;
+
+  @HiveField(9)
   final String? imageUrl;
+
+  @HiveField(10)
   final List<String> relatedIds;
 
   /// Splits instructions into readable step list for the detail UI.

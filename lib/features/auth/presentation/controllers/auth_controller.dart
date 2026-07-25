@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/routes/app_routes.dart';
 
 class AuthController extends GetxController {
@@ -51,7 +52,10 @@ class AuthController extends GetxController {
       currentUser.value = user;
       Get.offAllNamed(AppRoutes.exercises);
     } catch (e) {
-      errorMessage.value = e.toString();
+      errorMessage.value = AppException.messageOf(
+        e,
+        fallback: 'Sign-in failed. Please try again.',
+      );
     } finally {
       isLoading.value = false;
     }

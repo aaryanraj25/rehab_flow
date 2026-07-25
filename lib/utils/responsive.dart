@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../core/constants/app_constants.dart';
-import '../core/theme/app_theme.dart';
 
 /// Layout breakpoints + ScreenUtil sizing.
 ///
@@ -74,22 +73,5 @@ class Responsive {
       horizontal: horizontalPadding(context),
       vertical: isTablet(context) ? 28.h : 16.h,
     );
-  }
-}
-
-class DifficultyColors {
-  DifficultyColors._();
-
-  static Color forLevel(String difficulty) {
-    switch (difficulty.toLowerCase()) {
-      case 'beginner':
-        return AppColors.success;
-      case 'intermediate':
-        return AppColors.warning;
-      case 'advanced':
-        return AppColors.error;
-      default:
-        return AppColors.textSecondary;
-    }
   }
 }

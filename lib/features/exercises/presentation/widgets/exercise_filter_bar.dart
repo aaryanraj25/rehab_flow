@@ -84,20 +84,20 @@ class ExerciseActiveFilters extends GetView<ExerciseController> {
       if (!controller.hasFacetFilters) return const SizedBox.shrink();
 
       final chips = <Widget>[
-        if (controller.selectedCategory.value != null)
+        for (final category in controller.selectedCategories.toList()..sort())
           _ActiveChip(
-            label: controller.selectedCategory.value!,
-            onDeleted: () => controller.selectCategory(null),
+            label: category,
+            onDeleted: () => controller.selectCategory(category),
           ),
         if (controller.selectedDifficulty.value != null)
           _ActiveChip(
             label: controller.selectedDifficulty.value!,
             onDeleted: () => controller.selectDifficulty(null),
           ),
-        if (controller.selectedMuscle.value != null)
+        for (final muscle in controller.selectedMuscles.toList()..sort())
           _ActiveChip(
-            label: controller.selectedMuscle.value!,
-            onDeleted: () => controller.selectMuscle(null),
+            label: muscle,
+            onDeleted: () => controller.selectMuscle(muscle),
           ),
         _ActiveChip(
           label: 'Clear all',
@@ -179,9 +179,9 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
         child: Obx(() {
           final _ = (
             controller.allExercises.length,
-            controller.selectedCategory.value,
+            controller.selectedCategories.length,
             controller.selectedDifficulty.value,
-            controller.selectedMuscle.value,
+            controller.selectedMuscles.length,
             controller.filteredExercises.length,
           );
 
@@ -237,22 +237,27 @@ class _ExerciseFilterSheet extends GetView<ExerciseController> {
                       _FilterSection(
                         title: 'Category',
                         options: controller.categories,
-                        selected: controller.selectedCategory.value,
+                        selected: controller.selectedCategories,
                         onSelected: controller.selectCategory,
+                        multiSelect: true,
                       ),
                       SizedBox(height: 16.h),
                       _FilterSection(
                         title: 'Difficulty',
                         options: controller.difficulties,
-                        selected: controller.selectedDifficulty.value,
-                        onSelected: controller.selectDifficulty,
+                        selected: controller.selectedDifficulty.value == null
+                            ? const {}
+                            : {controller.selectedDifficulty.value!},
+                        onSelected: (option) =>
+                            controller.selectDifficulty(option),
                       ),
                       SizedBox(height: 16.h),
                       _FilterSection(
                         title: 'Target muscle',
                         options: controller.targetMuscles,
-                        selected: controller.selectedMuscle.value,
+                        selected: controller.selectedMuscles,
                         onSelected: controller.selectMuscle,
+                        multiSelect: true,
                       ),
                       SizedBox(height: 8.h),
                     ],
@@ -288,12 +293,14 @@ class _FilterSection extends StatelessWidget {
     required this.options,
     required this.selected,
     required this.onSelected,
+    this.multiSelect = false,
   });
 
   final String title;
   final List<String> options;
-  final String? selected;
-  final ValueChanged<String?> onSelected;
+  final Set<String> selected;
+  final ValueChanged<String> onSelected;
+  final bool multiSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -310,16 +317,28 @@ class _FilterSection extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
         ),
+        if (multiSelect) ...[
+          SizedBox(height: 2.h),
+          Text(
+            'Select one or more',
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textSecondary.withValues(alpha: 0.85),
+            ),
+          ),
+        ],
         SizedBox(height: 8.h),
         Wrap(
           spacing: 8.w,
           runSpacing: 8.h,
           children: options.map((option) {
-            final isSelected = selected == option;
+            final isSelected = selected.contains(option);
             return FilterChip(
               label: Text(option),
               selected: isSelected,
-              showCheckmark: false,
+              showCheckmark: multiSelect,
+              checkmarkColor: AppColors.textOnCoral,
               onSelected: (_) => onSelected(option),
               labelStyle: TextStyle(
                 fontSize: 12.sp,

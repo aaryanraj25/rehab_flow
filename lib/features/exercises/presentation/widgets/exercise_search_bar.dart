@@ -23,7 +23,7 @@ class ExerciseSearchBar extends GetView<ExerciseController> {
           color: AppColors.ink,
         ),
         decoration: InputDecoration(
-          hintText: 'Search exercises',
+          hintText: 'Search by name, like “knee” or “bridge”',
           hintStyle: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,

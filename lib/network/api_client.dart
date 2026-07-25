@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 
 import '../core/constants/app_constants.dart';
+import '../core/errors/app_exception.dart';
 
 class NetworkInfo {
   NetworkInfo([Connectivity? connectivity])
@@ -34,20 +35,15 @@ class ApiClient {
 
   Dio get dio => _dio;
 
+  /// GET that maps transport failures to [AppException] subtypes.
   Future<Response<dynamic>> get(
     String path, {
     Map<String, dynamic>? queryParameters,
-  }) {
-    return _dio.get(path, queryParameters: queryParameters);
+  }) async {
+    try {
+      return await _dio.get(path, queryParameters: queryParameters);
+    } catch (e) {
+      throw ExceptionMapper.from(e);
+    }
   }
-}
-
-class ApiException implements Exception {
-  ApiException(this.message, {this.statusCode});
-
-  final String message;
-  final int? statusCode;
-
-  @override
-  String toString() => message;
 }

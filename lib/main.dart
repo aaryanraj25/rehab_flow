@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/routes/app_routes.dart';
@@ -22,12 +21,13 @@ Future<void> main() async {
 }
 
 Future<void> _registerCoreServices() async {
-  final prefs = await SharedPreferences.getInstance();
-  final storage = LocalStorageService(prefs);
+  final storage = await LocalStorageService.init();
   final networkInfo = NetworkInfo();
   final apiClient = ApiClient();
-  final favoritesRepository = FavoritesRepository(storage);
-  final exerciseRepository = ExerciseRepository(
+  final AuthRepository authRepository = AuthRepositoryImpl(storage);
+  final FavoritesRepository favoritesRepository =
+      FavoritesRepositoryImpl(storage);
+  final ExerciseRepository exerciseRepository = ExerciseRepositoryImpl(
     storage: storage,
     apiClient: apiClient,
     networkInfo: networkInfo,
@@ -36,9 +36,9 @@ Future<void> _registerCoreServices() async {
   Get.put(storage, permanent: true);
   Get.put(networkInfo, permanent: true);
   Get.put(apiClient, permanent: true);
-  Get.put(AuthRepository(storage), permanent: true);
-  Get.put(exerciseRepository, permanent: true);
-  Get.put(favoritesRepository, permanent: true);
+  Get.put<AuthRepository>(authRepository, permanent: true);
+  Get.put<ExerciseRepository>(exerciseRepository, permanent: true);
+  Get.put<FavoritesRepository>(favoritesRepository, permanent: true);
   Get.put(
     FavoritesController(
       favoritesRepository: favoritesRepository,

@@ -1,34 +1,50 @@
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/storage/local_storage_service.dart';
 
-/// Persists favourite exercise ids locally for offline access.
-class FavoritesRepository {
-  FavoritesRepository(this._storage);
+/// Contract for favourite exercise id persistence.
+abstract class FavoritesRepository {
+  List<String> getFavoriteIds();
+
+  bool isFavorite(String exerciseId);
+
+  Future<void> addFavorite(String exerciseId);
+
+  Future<void> removeFavorite(String exerciseId);
+
+  Future<bool> toggleFavorite(String exerciseId);
+
+  Future<void> clear();
+}
+
+/// Hive-backed [FavoritesRepository] implementation.
+class FavoritesRepositoryImpl implements FavoritesRepository {
+  FavoritesRepositoryImpl(this._storage);
 
   final LocalStorageService _storage;
 
-  List<String> getFavoriteIds() {
-    return List<String>.from(
-      _storage.getStringList(AppConstants.storageFavoritesKey),
-    );
-  }
+  @override
+  List<String> getFavoriteIds() =>
+      List<String>.from(_storage.getFavoriteIds());
 
+  @override
   bool isFavorite(String exerciseId) {
     return getFavoriteIds().contains(exerciseId);
   }
 
+  @override
   Future<void> addFavorite(String exerciseId) async {
     final ids = getFavoriteIds();
     if (ids.contains(exerciseId)) return;
     ids.add(exerciseId);
-    await _storage.setStringList(AppConstants.storageFavoritesKey, ids);
+    await _storage.setFavoriteIds(ids);
   }
 
+  @override
   Future<void> removeFavorite(String exerciseId) async {
     final ids = getFavoriteIds()..remove(exerciseId);
-    await _storage.setStringList(AppConstants.storageFavoritesKey, ids);
+    await _storage.setFavoriteIds(ids);
   }
 
+  @override
   Future<bool> toggleFavorite(String exerciseId) async {
     if (isFavorite(exerciseId)) {
       await removeFavorite(exerciseId);
@@ -38,8 +54,8 @@ class FavoritesRepository {
     return true;
   }
 
-  /// Clears all favourites (e.g. Favourites screen “Clear all”).
+  @override
   Future<void> clear() async {
-    await _storage.setStringList(AppConstants.storageFavoritesKey, []);
+    await _storage.setFavoriteIds([]);
   }
 }

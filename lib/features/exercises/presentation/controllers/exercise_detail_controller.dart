@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../network/api_client.dart';
 import '../../data/models/exercise_model.dart';
@@ -97,7 +98,7 @@ class ExerciseDetailController extends GetxController {
       isOffline.value = !(await _networkInfo.isConnected);
       errorMessage.value = isOffline.value
           ? 'No internet connection. Connect and retry to load this exercise.'
-          : e.toString();
+          : AppException.messageOf(e);
       status.value = ExerciseDetailStatus.error;
     }
   }

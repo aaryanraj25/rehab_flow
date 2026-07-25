@@ -19,21 +19,25 @@ class ExerciseImageCache {
   /// Downloads thumbnail images first (low priority), then hero images.
   /// Best-effort — never throws; UI still has branded fallbacks.
   static Future<void> prefetchExercises(Iterable<ExerciseModel> exercises) async {
-    final thumbs = <String>{};
-    final heroes = <String>{};
-    for (final exercise in exercises) {
-      final thumb = exercise.thumbnailUrl?.trim();
-      final image = exercise.imageUrl?.trim();
-      if (thumb != null && thumb.isNotEmpty) thumbs.add(thumb);
-      if (image != null && image.isNotEmpty && image != thumb) {
-        heroes.add(image);
+    try {
+      final thumbs = <String>{};
+      final heroes = <String>{};
+      for (final exercise in exercises) {
+        final thumb = exercise.thumbnailUrl?.trim();
+        final image = exercise.imageUrl?.trim();
+        if (thumb != null && thumb.isNotEmpty) thumbs.add(thumb);
+        if (image != null && image.isNotEmpty && image != thumb) {
+          heroes.add(image);
+        }
       }
-    }
 
-    await _downloadAll(thumbs);
-    // Yield so list UI can settle before larger hero downloads.
-    await Future<void>.delayed(const Duration(milliseconds: 80));
-    await _downloadAll(heroes);
+      await _downloadAll(thumbs);
+      // Yield so list UI can settle before larger hero downloads.
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      await _downloadAll(heroes);
+    } catch (_) {
+      // Missing plugins / offline / IO — ignore; list still works with fallbacks.
+    }
   }
 
   static Future<void> _downloadAll(Set<String> urls) {

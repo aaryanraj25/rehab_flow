@@ -35,8 +35,19 @@ Session is persisted locally; relaunching the app auto-logs in when a session ex
 ### Tests
 
 ```bash
+# Unit + widget + host integration flows
 flutter test
+
+# Device/emulator integration binding smoke test
+flutter test integration_test -d <deviceId>
 ```
+
+Coverage layout:
+
+- `test/unit/` — validators, exceptions, models, repositories, controllers, Hive storage
+- `test/widget/` — splash, login, exercise list UI
+- `test/integration/` — browse/search, favourites resolution, detail UI (host, no device)
+- `integration_test/` — device binding smoke test for hardware runs
 
 ### Optional APK
 
@@ -59,7 +70,10 @@ flutter build apk --release
 | `network/` | Dio client + connectivity |
 | `utils/` | Validators + responsive / ScreenUtil helpers |
 
-Repositories own persistence and networking. Controllers stay thin and reactive. Shared UI states (loading / empty / error / offline) live in reusable widgets.
+Repositories own persistence and networking behind abstract contracts
+(`AuthRepository`, `ExerciseRepository`, `FavoritesRepository`) with Hive-backed
+`*Impl` classes. Controllers stay thin and reactive. Shared UI states
+(loading / empty / error / offline) live in reusable widgets.
 
 ---
 
@@ -117,10 +131,12 @@ Controllers:
 |---------|-----|
 | `get` | State management, DI, navigation |
 | `dio` | REST client |
-| `shared_preferences` | Auth session, exercise cache, favourites |
+| `hive` / `hive_flutter` | Auth session, typed exercise cache, favourites (fast key-value + typed objects; more scalable than SharedPreferences for structured data, still lighter than SQLite/Isar for this app) |
 | `connectivity_plus` | Online / offline detection |
 | `cached_network_image` | Image loading + disk cache |
+| `flutter_cache_manager` | Custom offline image cache + prefetch |
 | `flutter_screenutil` | Consistent scaling on phones/tablets |
+| `cupertino_icons` | iOS-style icon font (Flutter default) |
 
 ---
 
@@ -142,15 +158,17 @@ Controllers:
 
 - Mock auth is intentional (assignment: no real backend required).  
 - Bundled `assets/data/exercises.json` is the primary content source for reliable demos; a public GitHub raw URL can refresh on pull-to-refresh when online.  
+- To demo the hard API-failure UI, flip `AppConstants.debugForceApiHardFailure` to `true` (skips cache/asset soft-fail and shows `AppErrorView`). Keep it `false` for normal use.
 - Images come from public Unsplash URLs; offline still shows text/data (images may fall back to placeholders).  
-- Favourites store exercise **ids**; resolving titles/images uses the local exercise cache/asset.  
+- Favourites store exercise **ids**; resolving titles/images uses the local Hive exercise cache/asset.  
+- Local persistence uses **Hive** (separate boxes for auth, exercises, favourites, and the exercise-id index) with generated TypeAdapters for `UserModel` and `ExerciseModel`.
 
 ---
 
 ## Trade-offs
 
 - **GetX vs Bloc/Riverpod** — faster delivery and fewer files; stricter compile-time DI is traded for convention-based GetX registration.  
-- **SharedPreferences vs Hive/SQLite** — enough for JSON list cache + id lists; a local DB would scale better for large datasets.  
+- **Hive vs SharedPreferences/SQLite** — Hive gives typed object adapters and better scaling for structured exercise caches than SharedPreferences, while staying lighter than SQLite/Isar for this dataset size.  
 - **Asset-first data** — guarantees offline/demo reliability; remote API is secondary refresh, not a hard dependency.  
 - **iOS `objective_c` pin** — temporary `dependency_overrides` to avoid a known plugin crash on newer `objective_c` builds.
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/difficulty_colors.dart';
 import '../../../../utils/responsive.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../data/models/exercise_model.dart';
@@ -18,12 +19,7 @@ class ExerciseCard extends StatelessWidget {
 
   final ExerciseModel exercise;
   final VoidCallback? onTap;
-
-  /// Compact horizontal layout for phone lists.
   final bool dense;
-
-  /// Disable when multiple cards for the same id could share a route
-  /// (e.g. related list under an already-heroed detail media).
   final bool enableHero;
 
   @override
@@ -56,27 +52,18 @@ class _DenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumb = 88.w;
+    final thumb = 92.w;
+    final difficultyColor = DifficultyColors.forLevel(exercise.difficulty);
 
     Widget image = ClipRRect(
-      borderRadius: BorderRadius.circular(14.r),
+      borderRadius: BorderRadius.circular(16.r),
       child: SizedBox(
         width: thumb,
         height: thumb,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ExerciseCachedImage(
-              url: exercise.thumbnailUrl ?? exercise.imageUrl,
-              fallbackCategory: exercise.category,
-              showLoader: false,
-            ),
-            Positioned(
-              left: 6.w,
-              top: 6.h,
-              child: _DifficultyDot(difficulty: exercise.difficulty),
-            ),
-          ],
+        child: ExerciseCachedImage(
+          url: exercise.thumbnailUrl ?? exercise.imageUrl,
+          fallbackCategory: exercise.category,
+          showLoader: false,
         ),
       ),
     );
@@ -86,67 +73,101 @@ class _DenseCard extends StatelessWidget {
 
     return Material(
       color: AppColors.surfaceElevated,
-      elevation: 1.5,
-      shadowColor: AppColors.ink.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(18.r),
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      borderRadius: BorderRadius.circular(20.r),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         splashColor: AppColors.coral.withValues(alpha: 0.12),
-        highlightColor: AppColors.coral.withValues(alpha: 0.06),
-        child: Padding(
-          padding: EdgeInsets.all(10.w),
-          child: Row(
-            children: [
-              image,
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        highlightColor: AppColors.coral.withValues(alpha: 0.05),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Row(
+              children: [
+                image,
+                SizedBox(width: 14.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        exercise.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.ink,
+                          height: 1.25,
+                          letterSpacing: -0.25,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Wrap(
+                        spacing: 6.w,
+                        runSpacing: 6.h,
+                        children: [
+                          _SoftPill(
+                            label: exercise.difficulty,
+                            foreground: difficultyColor,
+                            background: difficultyColor.withValues(alpha: 0.14),
+                          ),
+                          _SoftPill(
+                            label: exercise.category,
+                            foreground: AppColors.coralDeep,
+                            background: AppColors.coral.withValues(alpha: 0.14),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.accessibility_new_rounded,
+                            size: 14.sp,
+                            color: AppColors.textSecondary,
+                          ),
+                          SizedBox(width: 4.w),
+                          Expanded(
+                            child: Text(
+                              'Targets ${exercise.targetMuscle}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      exercise.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.ink,
-                        height: 1.25,
-                        letterSpacing: -0.2,
-                      ),
+                    FavoriteButton(
+                      exerciseId: exercise.id,
+                      color: AppColors.favorite,
+                      size: 22.sp,
                     ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      '${exercise.difficulty} · ${exercise.category}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      exercise.targetMuscle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11.5.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary.withValues(alpha: 0.85),
-                      ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textSecondary.withValues(alpha: 0.45),
+                      size: 22.sp,
                     ),
                   ],
                 ),
-              ),
-              FavoriteButton(
-                exerciseId: exercise.id,
-                color: AppColors.favorite,
-                size: 22.sp,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -167,6 +188,8 @@ class _GridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final difficultyColor = DifficultyColors.forLevel(exercise.difficulty);
+
     Widget media = Stack(
       fit: StackFit.expand,
       children: [
@@ -178,9 +201,10 @@ class _GridCard extends StatelessWidget {
         Positioned(
           left: 10.w,
           top: 10.h,
-          child: _Chip(
+          child: _SoftPill(
             label: exercise.difficulty,
-            color: DifficultyColors.forLevel(exercise.difficulty),
+            foreground: Colors.white,
+            background: difficultyColor,
           ),
         ),
         Positioned(
@@ -200,97 +224,87 @@ class _GridCard extends StatelessWidget {
 
     return Material(
       color: AppColors.surfaceElevated,
-      elevation: 2,
-      shadowColor: AppColors.ink.withValues(alpha: 0.14),
-      borderRadius: BorderRadius.circular(20.r),
+      elevation: 0,
+      borderRadius: BorderRadius.circular(22.r),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         splashColor: AppColors.coral.withValues(alpha: 0.12),
-        highlightColor: AppColors.coral.withValues(alpha: 0.06),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(flex: 5, child: media),
-            Expanded(
-              flex: 4,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      exercise.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.ink,
-                        height: 1.25,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22.r),
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.55)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(flex: 5, child: media),
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 14.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        exercise.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.ink,
+                          height: 1.25,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${exercise.category} · ${exercise.targetMuscle}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
+                      const Spacer(),
+                      Text(
+                        '${exercise.category} · ${exercise.targetMuscle}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _DifficultyDot extends StatelessWidget {
-  const _DifficultyDot({required this.difficulty});
-
-  final String difficulty;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 10.w,
-      height: 10.w,
-      decoration: BoxDecoration(
-        color: DifficultyColors.forLevel(difficulty),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 1.5),
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.color});
+class _SoftPill extends StatelessWidget {
+  const _SoftPill({
+    required this.label,
+    required this.foreground,
+    required this.background,
+  });
 
   final String label;
-  final Color color;
+  final Color foreground;
+  final Color background;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16.r),
+        color: background,
+        borderRadius: BorderRadius.circular(999.r),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: Colors.white,
-          fontSize: 10.sp,
-          fontWeight: FontWeight.w700,
+          color: foreground,
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

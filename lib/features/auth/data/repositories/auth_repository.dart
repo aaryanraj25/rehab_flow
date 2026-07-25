@@ -1,25 +1,34 @@
-import '../../../../core/constants/app_constants.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/storage/local_storage_service.dart';
 import '../models/user_model.dart';
 
+/// Contract for mock auth + local session persistence.
+abstract class AuthRepository {
+  UserModel? getCurrentSession();
 
-class AuthRepository {
-  AuthRepository(this._storage);
+  bool get isAuthenticated;
+
+  Future<UserModel> login({
+    required String email,
+    required String password,
+  });
+
+  Future<void> logout();
+}
+
+/// Hive-backed [AuthRepository] implementation.
+class AuthRepositoryImpl implements AuthRepository {
+  AuthRepositoryImpl(this._storage);
 
   final LocalStorageService _storage;
 
-  UserModel? getCurrentSession() {
-    final json = _storage.getJson(AppConstants.storageAuthKey);
-    if (json is! Map<String, dynamic>) return null;
-    try {
-      return UserModel.fromJson(json);
-    } catch (_) {
-      return null;
-    }
-  }
+  @override
+  UserModel? getCurrentSession() => _storage.getSession();
 
-  bool get isAuthenticated => getCurrentSession() != null;
+  @override
+  bool get isAuthenticated => _storage.hasSession;
 
+  @override
   Future<UserModel> login({
     required String email,
     required String password,
@@ -28,7 +37,7 @@ class AuthRepository {
 
     final trimmedEmail = email.trim();
     if (trimmedEmail.isEmpty || password.isEmpty) {
-      throw AuthException('Email and password are required.');
+      throw const AuthException('Email and password are required.');
     }
 
     final user = UserModel(
@@ -37,12 +46,13 @@ class AuthRepository {
       token: 'mock_token_${DateTime.now().millisecondsSinceEpoch}',
     );
 
-    await _storage.setJson(AppConstants.storageAuthKey, user.toJson());
+    await _storage.saveSession(user);
     return user;
   }
 
+  @override
   Future<void> logout() async {
-    await _storage.remove(AppConstants.storageAuthKey);
+    await _storage.clearSession();
   }
 
   String _nameFromEmail(String email) {
@@ -52,11 +62,6 @@ class AuthRepository {
   }
 }
 
-class AuthException implements Exception {
-  AuthException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
+class AuthException extends AppException {
+  const AuthException(super.message);
 }

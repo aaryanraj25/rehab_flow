@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../network/api_client.dart';
 import '../../data/models/exercise_model.dart';
@@ -28,9 +29,11 @@ class ExerciseController extends GetxController {
   final RxBool refreshFailed = false.obs;
 
   final RxString searchQuery = ''.obs;
-  final RxnString selectedCategory = RxnString();
+  /// Multi-select — exercise matches if its category is in this set (OR).
+  final RxSet<String> selectedCategories = <String>{}.obs;
   final RxnString selectedDifficulty = RxnString();
-  final RxnString selectedMuscle = RxnString();
+  /// Multi-select — exercise matches if its muscle is in this set (OR).
+  final RxSet<String> selectedMuscles = <String>{}.obs;
 
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   Timer? _onlineBannerTimer;
@@ -61,35 +64,50 @@ class ExerciseController extends GetxController {
   }
 
   bool get hasFacetFilters =>
-      selectedCategory.value != null ||
+      selectedCategories.isNotEmpty ||
       selectedDifficulty.value != null ||
-      selectedMuscle.value != null;
+      selectedMuscles.isNotEmpty;
 
   bool get hasActiveFilters =>
       searchQuery.value.trim().isNotEmpty || hasFacetFilters;
 
   int get activeFacetFilterCount =>
-      (selectedCategory.value != null ? 1 : 0) +
+      selectedCategories.length +
       (selectedDifficulty.value != null ? 1 : 0) +
-      (selectedMuscle.value != null ? 1 : 0);
+      selectedMuscles.length;
 
-  /// Search by name + category/difficulty/muscle filters (AND).
+  /// Search by name + difficulty AND (category OR muscle) filters.
+  /// Multiple values within category/muscle use OR; difficulty stays single-select.
   List<ExerciseModel> get filteredExercises {
     final query = searchQuery.value.trim().toLowerCase();
+    final categories = selectedCategories.toSet();
+    final muscles = selectedMuscles.toSet();
 
     return allExercises.where((exercise) {
       final matchesSearch =
           query.isEmpty || exercise.name.toLowerCase().contains(query);
-      final matchesCategory = selectedCategory.value == null ||
-          exercise.category == selectedCategory.value;
       final matchesDifficulty = selectedDifficulty.value == null ||
           exercise.difficulty == selectedDifficulty.value;
-      final matchesMuscle = selectedMuscle.value == null ||
-          exercise.targetMuscle == selectedMuscle.value;
-      return matchesSearch &&
-          matchesCategory &&
-          matchesDifficulty &&
-          matchesMuscle;
+
+      final hasCategoryFilter = categories.isNotEmpty;
+      final hasMuscleFilter = muscles.isNotEmpty;
+      final matchesCategory = categories.contains(exercise.category);
+      final matchesMuscle = muscles.contains(exercise.targetMuscle);
+
+      // Category and target muscle align with OR: matching either facet is enough
+      // (same rule for one selection or many).
+      final bool matchesCategoryOrMuscle;
+      if (!hasCategoryFilter && !hasMuscleFilter) {
+        matchesCategoryOrMuscle = true;
+      } else if (hasCategoryFilter && hasMuscleFilter) {
+        matchesCategoryOrMuscle = matchesCategory || matchesMuscle;
+      } else if (hasCategoryFilter) {
+        matchesCategoryOrMuscle = matchesCategory;
+      } else {
+        matchesCategoryOrMuscle = matchesMuscle;
+      }
+
+      return matchesSearch && matchesDifficulty && matchesCategoryOrMuscle;
     }).toList();
   }
 
@@ -168,7 +186,7 @@ class ExerciseController extends GetxController {
       isOffline.value = !(await _networkInfo.isConnected);
       errorMessage.value = isOffline.value
           ? 'No internet connection and no saved exercises to show.'
-          : e.toString();
+          : AppException.messageOf(e);
       status.value = ExerciseListStatus.error;
     }
   }
@@ -198,9 +216,12 @@ class ExerciseController extends GetxController {
     searchQuery.value = '';
   }
 
-  void selectCategory(String? value) {
-    selectedCategory.value =
-        selectedCategory.value == value ? null : value;
+  void selectCategory(String value) {
+    if (selectedCategories.contains(value)) {
+      selectedCategories.remove(value);
+    } else {
+      selectedCategories.add(value);
+    }
   }
 
   void selectDifficulty(String? value) {
@@ -208,14 +229,18 @@ class ExerciseController extends GetxController {
         selectedDifficulty.value == value ? null : value;
   }
 
-  void selectMuscle(String? value) {
-    selectedMuscle.value = selectedMuscle.value == value ? null : value;
+  void selectMuscle(String value) {
+    if (selectedMuscles.contains(value)) {
+      selectedMuscles.remove(value);
+    } else {
+      selectedMuscles.add(value);
+    }
   }
 
   void clearFacetFilters() {
-    selectedCategory.value = null;
+    selectedCategories.clear();
     selectedDifficulty.value = null;
-    selectedMuscle.value = null;
+    selectedMuscles.clear();
   }
 
   void clearFilters() {

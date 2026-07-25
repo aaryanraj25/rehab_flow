@@ -129,8 +129,10 @@ class ExerciseListScreen extends GetView<ExerciseController> {
                                         EdgeInsets.fromLTRB(pad, 6.h, pad, 10.h),
                                     child: Text(
                                       filtered.isEmpty
-                                          ? 'No matches'
-                                          : '${filtered.length} exercise${filtered.length == 1 ? '' : 's'}',
+                                          ? 'No matches yet'
+                                          : filtered.length == 1
+                                              ? '1 exercise ready for you'
+                                              : '${filtered.length} exercises ready for you',
                                       style: TextStyle(
                                         fontSize: 13.sp,
                                         fontWeight: FontWeight.w700,
@@ -272,6 +274,15 @@ class _Header extends StatelessWidget {
                           letterSpacing: -0.5,
                           color: AppColors.textOnCoral,
                         ),
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Find a move and keep recovering.',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textOnCoral.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
